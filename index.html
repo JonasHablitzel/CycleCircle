@@ -3,6 +3,10 @@
   <head>
     <link rel="stylesheet" href="css/style.css" />
     <link rel="icon" type="image/jpeg" href="img/8000Watt.jpeg" />
+    <script src="https://bossanova.uk/jexcel/v4/jexcel.js"></script>
+    <script src="https://jsuites.net/v3/jsuites.js"></script>
+    <link rel="stylesheet" href="https://bossanova.uk/jexcel/v4/jexcel.css" type="text/css" />
+    <link rel="stylesheet" href="https://jsuites.net/v3/jsuites.css" type="text/css" />
   </head>
   <body>
     <video autoplay></video>
@@ -93,15 +97,9 @@
         <button id="openpopupclock" onclick="openpopup()">
           Open Popuptimer
         </button>
-        <div style="overflow-y: scroll; height: 400px; background-color: white;">
-          <table id="TrainingTable" style="width: 100%; background-color: white">
-            <tr style="background-color: lightgray">
-              <th>Duration in min</th>
-              <th>Intensity (0-10)</th>
-              <th>Cadence in rpm</th>
-            </tr>
-          </table>
-        </div>
+        <div id="spreadsheet"></div>
+        <p><button id='downloadbuut'>Export my spreadsheet as CSV</button></p>
+        <p><input type="button" value="Disabled B2" onclick="toggle(this)"></p>
         <label class="custom-file-upload">
           <input
             type="file"

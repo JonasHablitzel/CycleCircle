@@ -1,5 +1,4 @@
 const whistle = new Audio("sounds/gymnasium.wav");
-let training = [];
 
 const colormin = getComputedStyle(document.querySelector(":root"))
   .getPropertyValue("--intensitymin")
@@ -15,57 +14,85 @@ const colormax = getComputedStyle(document.querySelector(":root"))
   .trim();
 const effortbins = 10;
 
+initspreadsheet();
 
+function createemty(maxrows = 80) {
+  const currentlen = document.getElementById("spreadsheet").jexcel.rows.length;
+  document.getElementById("spreadsheet").jexcel.insertRow(maxrows - currentlen);
+}
 
+function initspreadsheet() {
+  let array = [{ duartion: "", intensity: "", cadence: "" }];
+  jexcel(document.getElementById("spreadsheet"), {
+    data: array,
+    defaultColWidth: 250,
+    tableOverflow: true,
+    columns: [
+      {
+        type: "numeric",
+        name: "duartion",
+        title: "Time in min",
+      },
+      {
+        type: "numeric",
+        name: "intensity",
+        title: "Power 0-10",
+      },
+      {
+        type: "numeric",
+        name: "cadence",
+        title: "Cadence",
+      },
+    ],
+    minDimensions: [3, 80],
+  });
+}
 
+function disableRow(idxrow) {
+  const table = document.getElementById("spreadsheet").jexcel;
+  let ncol = table.getHeaders().split(",").length;
+  for (let i = 0; i < ncol; i++) {
+    const colchar = String.fromCharCode(i + 65);
+    const cellidx = `${colchar}${idxrow + 1}`;
+    console.log(cellidx, colchar, i);
+    table.setReadOnly(cellidx, true);
+  }
+}
 
 let openFile = function (event) {
   let input = event.target;
   let reader = new FileReader();
   let csv;
   reader.onload = function () {
-    csv = reader.result;  
+    csv = reader.result;
     const array = csvstrtoarray(csv);
-    if(array.length > 0){
-      const tableref = document.getElementById("TrainingTable")
-      DeleteAllRows(tableref,fheader=false);
-      InsertRows(tableref,array);
-    }    
+    if (array.length > 0) {
+      document.getElementById("spreadsheet").jexcel.setData(array);
+    }
   };
 
-  reader.readAsText(input.files[0]);  
+  reader.readAsText(input.files[0]);
 };
 
-function csvstrtoarray(csvstr){
-  const rows = csvstr
-  .split(/\n/)
-  .map(function (lineStr) {
-    values = lineStr.split(",").map(parseFloat);
-    return values;
-  })
-  .slice(1);
-  const filtered = rows.filter(function (el) {
-    return !isNaN(parseInt(el[0]));
-  });
-  return filtered;
+document.getElementById("downloadbuut").onclick = function () {
+  TRAININGSHEET.download();
+};
+
+function strtolist(lineStr) {
+  return lineStr.split(",").map(parseFloat);
 }
 
-function gettraining() {
-  filtered = csvstrtoarray(data);
-  filtered[0].starttime = 0;
-  filtered[0].endtime = filtered[0].duration;
-  for (let i = 1; i < filtered.length; i++) {
-    filtered[i].starttime = filtered[i - 1].endtime;
-    filtered[i].endtime = filtered[i].starttime + filtered[i].duration;
-  }
-  return filtered;
+function listtotrainingobj(ls) {
+  return { duartion: ls[0], intensity: ls[1], cadence: ls[2] };
 }
 
-function gettrainingzone(duartion) {
-  let m = duartion / 60;
-  return training.find(function (element) {
-    return element.endtime > m;
-  });
+function csvstrtoarray(csvstr) {
+  return csvstr
+    .split(/\n/)
+    .map(strtolist)
+    .map(listtotrainingobj)
+    .slice(1)
+    .filter((element) => !isNaN(element.duartion));
 }
 
 function pickHex(gradientratio) {
@@ -103,7 +130,7 @@ function pad2(n) {
   return ("0" + n).slice(-2);
 }
 
-function changegauge(intensityzone) {
+function changeintensity(intensityzone) {
   const root = document.querySelector(":root");
   const fraction = intensityzone / effortbins;
   const degrees = Math.round(fraction * 180);
@@ -129,48 +156,89 @@ function showclocks(rest_s_ges, rest_s_interval) {
   );
 }
 
-function sound(intensity) {
-  let root = document.querySelector(":root");
+function playsound() {
   whistle.play();
   whistle.currentTime = 0;
 }
 
-function setTrainingIterval(delay, duration_s) {
-  let rest_s_ges = duration_s;
-  let rest_s_interval = 0;
-  let curInterval = {};
-  let intervalID = window.setInterval(function () {
-    if (curInterval !== gettrainingzone(duration_s - rest_s_ges)) {
-      curInterval = gettrainingzone(duration_s - rest_s_ges);
-      rest_s_interval = curInterval.duration * 60;
-      changegauge(curInterval.intensity);
-      changerpm(curInterval.cadence);
-      document.getElementById("lastseconds").innerHTML = "";
-      sound(curInterval.intensity);
-    }
+function showcountdown(rest_s) {
+  if (rest_s <= 5) {
+    document.getElementById("lastseconds").innerHTML = rest_s;
+  } else {
+    document.getElementById("lastseconds").innerHTML = "";
+  }
+}
 
-    if (rest_s_interval <= 5) {
-      document.getElementById("lastseconds").innerHTML = rest_s_interval;
-    }
+function getinterval(idx) {
+  const interval = listtotrainingobj(
+    document.getElementById("spreadsheet").jexcel.getRowData(idx)
+  );
+  return [interval, interval.duartion * 60, ++idx, 0];
+}
 
-    showclocks(rest_s_ges, rest_s_interval);
-    sendtopopup();
+function changegauges(intensity, cadence) {
+  changeintensity(intensity);
+  changerpm(cadence);
+}
 
-    rest_s_ges--;
-    rest_s_interval--;
-    if (rest_s_ges === 0) {
+function StartIntervals(delay = 1000) {
+  let totaltime_s = 0;
+  disableRow(0);
+  let [
+    curinterval,
+    intervalduration_s,
+    nextintervalidx,
+    intervaltime_s,
+  ] = getinterval(0);
+  changegauges(curinterval.intensity, curinterval.cadence);
+
+  let myVar = window.setInterval(updateGauges, delay);
+  function updateGauges() {
+    let totalduration_s = getTrainingDuration();
+    let resttotal_s = totalduration_s - totaltime_s;
+    let restinterval_s = intervalduration_s - intervaltime_s;
+
+    if (resttotal_s === 0) {
       window.clearInterval(intervalID);
     }
-  }, delay);
+    if (restinterval_s === 0) {
+      disableRow(nextintervalidx);
+      [
+        curinterval,
+        intervalduration_s,
+        nextintervalidx,
+        intervaltime_s,
+      ] = getinterval(nextintervalidx);
+      changegauges(curinterval.intensity, curinterval.cadence);
+      playsound();
+    }
+
+    showclocks(resttotal_s, restinterval_s);
+    showcountdown(restinterval_s);
+    sendtopopup();
+
+    intervaltime_s++;
+    totaltime_s++;
+  }
+}
+
+function getTrainingDuration() {
+  return (
+    document
+      .getElementById("spreadsheet")
+      .jexcel.getColumnData(0)
+      .filter(Boolean)
+      .map(parseFloat)
+      .reduce((pv, cv) => pv + cv, 0) * 60
+  );
 }
 
 function starttraining() {
-  training = gettraining();  
-  duration_s = training[training.length - 1].endtime * 60;
+  duration_s = getTrainingDuration();
   document.getElementById("butstart").style.visibility = "hidden";
   document.getElementById("informationpopup").style.visibility = "hidden";
   document.getElementById("CsvInput").style.visibility = "hidden";
-  setTrainingIterval(1000, duration_s);
+  StartIntervals();
 }
 
 const video = document.querySelector("video");
@@ -211,29 +279,29 @@ window.addEventListener(
   true
 );
 
-function InsertRow(tableref,textlist = ["a","",""]){
+function InsertRow(tableref, textlist = ["a", "", ""]) {
   let newRow = tableref.insertRow();
   const ncoloumns = tableref.rows[0].cells.length;
-  for (let j = 0; j < ncoloumns; j++){
-    let cell   = newRow.insertCell(j);
-    let cellText  = document.createTextNode(textlist[j]);
-    cell.setAttribute('contentEditable', 'true');    
+  for (let j = 0; j < ncoloumns; j++) {
+    let cell = newRow.insertCell(j);
+    let cellText = document.createTextNode(textlist[j]);
+    cell.setAttribute("contentEditable", "true");
     cell.appendChild(cellText);
-  }  
-}
-
-function InsertRows(tableref,textarray){
-  const nrows = textarray.length;
-  console.log(nrows);
-  for (let i = 0; i < nrows; i++){
-    InsertRow(tableref,textarray[i]);
   }
 }
 
-function DeleteAllRows(tableref,fheader=false){
+function InsertRows(tableref, textarray) {
+  const nrows = textarray.length;
+  console.log(nrows);
+  for (let i = 0; i < nrows; i++) {
+    InsertRow(tableref, textarray[i]);
+  }
+}
+
+function DeleteAllRows(tableref, fheader = false) {
   const nrows = tableref.rows.length - 1;
-  const minrow = fheader ? 0 : 1 ;
-  for (let i = nrows; i >= minrow; i--){
+  const minrow = fheader ? 0 : 1;
+  for (let i = nrows; i >= minrow; i--) {
     tableref.deleteRow(i);
   }
 }
@@ -248,7 +316,7 @@ const song_list = document.getElementById("SongList");
 let songfiles = [];
 
 document.getElementById("SongInput").onchange = function (e) {
-  if(this.files.length > 0){
+  if (this.files.length > 0) {
     createPlaylist(this.files);
     songfiles = this.files;
     song_list.value = 0;
@@ -328,13 +396,15 @@ music_player.onpause = (e) => {
   document.getElementById("PlayPause").classList.remove("paused");
 };
 
-document.getElementById("PlayProgressBar").addEventListener("click", function (e) {
-  let percent = e.offsetX / this.offsetWidth;
-  console.log(percent);
-  console.log(this.offsetWidth);
-  music_player.currentTime = parseFloat(percent) * music_player.duration;
-  this.value = percent / 100;
-});
+document
+  .getElementById("PlayProgressBar")
+  .addEventListener("click", function (e) {
+    let percent = e.offsetX / this.offsetWidth;
+    console.log(percent);
+    console.log(this.offsetWidth);
+    music_player.currentTime = parseFloat(percent) * music_player.duration;
+    this.value = percent / 100;
+  });
 
 music_player.addEventListener("timeupdate", function () {
   const currenttime = music_player.currentTime;
@@ -349,9 +419,7 @@ music_player.addEventListener("timeupdate", function () {
     playprogressbar.value = percent.toFixed(1);
     console.log(duration);
     console.log(formattominsec(duration));
-    musicduration.innerText = formattominsec(
-      duration
-    );
+    musicduration.innerText = formattominsec(duration);
   }
 });
 
@@ -359,8 +427,7 @@ document
   .getElementById("volume-control")
   .addEventListener("input", function (e) {
     music_player.volume = e.currentTarget.value / 100;
-});
-
+  });
 
 // ---------------
 // Popupwindow
@@ -371,7 +438,7 @@ let popupwin = null;
 const popupwinpara =
   "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
 
-function openpopup() { 
+function openpopup() {
   popupwin = window.open("popup.html", "PopUpTimer", popupwinpara);
 }
 
@@ -391,7 +458,7 @@ function sendtopopup() {
     PopCadencetitle.innerHTML = document.getElementById(
       "cadencetitle"
     ).innerHTML;
-    
+
     const element = document.getElementById("intenstitle");
     const style = window.getComputedStyle(element);
     const color = style.getPropertyValue("color");
