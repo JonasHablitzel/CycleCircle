@@ -1,0 +1,6 @@
+<svg version="1.1"
+     baseProfile="full"
+     width="300" height="300"
+     xmlns="http://www.w3.org/2000/svg">
+  <polygon points="0,0 300,150 0,300" style="fill:black;" />
+</svg>

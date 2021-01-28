@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            :root {
+                --PopGaugecolor: #00FF05;
+            }            
+            body {
+                background-color: #686868;
+                overflow-x:hidden;
+                overflow-y:hidden;
+            }
+            *    {font-size: 100%; font-family: Arial;}
+            hr   {border: 1px solid black; width: 80%;}
+            div  {text-align: center;}
+            #PopTotalcountdown{
+                color: white;
+                font-size: 40px;
+                font-weight: 600;
+            }
+            #PopIntervalcountdown{
+                color: white;
+                font-size: 40px;
+                font-weight: 600;
+            }
+            .flex{
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .box{
+                width: 200px;
+                display: flex;
+                flex-direction: column;
+                margin-top: 10px;
+            }
+            .boxtitle{
+                color: white;
+                font-size: 30px;
+                font-weight: 600;
+                height: 45px;
+                text-align: center;
+            }
+            .boxbody{
+                margin-bottom: 10px;
+                text-align: center;
+                font-size: 45px;
+                font-weight: 600;
+            }
+            .bluetext{color:#3da0fd;}
+            .intensitytext{color:var(--PopGaugecolor);}
+        </style>
+    </head>
+    <body class="flex">
+        <div class="box">
+            <div id="PopTotalcountdown">00:00</div>
+            <hr />
+            <div id="PopIntervalcountdown">00:00</div>
+        </div>
+        <div class="box">
+            <div class="boxbody intensitytext" id="PopIntenstitle">0</div>
+            <div class="boxtitle">INTENSITY</div>
+        </div>        
+        <div class="box">            
+            <div class="boxbody bluetext" id="PopCadencetitle">110</div>
+            <div class="boxtitle">CADENCE</div>
+        </div>        
+    </body>
+</html>
