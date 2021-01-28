@@ -74,10 +74,6 @@ let openFile = function (event) {
   reader.readAsText(input.files[0]);
 };
 
-document.getElementById("downloadbuut").onclick = function () {
-  TRAININGSHEET.download();
-};
-
 function strtolist(lineStr) {
   return lineStr.split(",").map(parseFloat);
 }
@@ -181,35 +177,48 @@ function changegauges(intensity, cadence) {
   changerpm(cadence);
 }
 
-function StartIntervals(delay = 1000) {
-  let totaltime_s = 0;
-  disableRow(0);
-  let [
-    curinterval,
-    intervalduration_s,
-    nextintervalidx,
-    intervaltime_s,
-  ] = getinterval(0);
-  changegauges(curinterval.intensity, curinterval.cadence);
 
-  let myVar = window.setInterval(updateGauges, delay);
-  function updateGauges() {
-    let totalduration_s = getTrainingDuration();
-    let resttotal_s = totalduration_s - totaltime_s;
-    let restinterval_s = intervalduration_s - intervaltime_s;
 
-    if (resttotal_s === 0) {
-      window.clearInterval(intervalID);
-    }
+
+
+
+
+
+class Intervaltimer{
+  constructor() {    
+    this.totaltime_s = 0;
+    this.intervaltime_s = 0;
+    this.totalduration = 0;
+    this.interval_idx = 0;
+    this.interval = {};
+    this.timer = null;
+  }
+
+  updateInterval(){
+    let ls = document.getElementById("spreadsheet").jexcel.getRowData(this.interval_idx);
+    this.interval = { duartion: ls[0] * 60, intensity: ls[1], cadence: ls[2] };
+  }
+
+  updateTotalDuration(){
+    this.totalduration = (
+      document
+        .getElementById("spreadsheet")
+        .jexcel.getColumnData(0)
+        .filter(Boolean)
+        .map(parseFloat)
+        .reduce((pv, cv) => pv + cv, 0) * 60
+    );
+  }
+
+  increasetime(){    
+    let resttotal_s = this.totalduration - this.totaltime_s;
+    let restinterval_s = this.interval.duartion - this.intervaltime_s;   
     if (restinterval_s === 0) {
-      disableRow(nextintervalidx);
-      [
-        curinterval,
-        intervalduration_s,
-        nextintervalidx,
-        intervaltime_s,
-      ] = getinterval(nextintervalidx);
-      changegauges(curinterval.intensity, curinterval.cadence);
+      this.interval_idx = this.interval_idx + 1;
+      this.updateInterval();
+      this.updateTotalDuration();
+      disableRow(this.interval_idx);
+      changegauges(this.curinterval.intensity, this.curinterval.cadence);
       playsound();
     }
 
@@ -217,28 +226,41 @@ function StartIntervals(delay = 1000) {
     showcountdown(restinterval_s);
     sendtopopup();
 
-    intervaltime_s++;
-    totaltime_s++;
+    this.intervaltime_s = this.intervaltime_s + 1;
+    this.totaltime_s =  this.totaltime_s + 1;   
+  }
+
+  start(){
+    this.updateInterval();
+    this.updateTotalDuration();
+    if(this.totalduration > 0){
+      this.timer = setInterval(() => this.increasetime(),1000);
+    }    
+  }
+
+  stop(){
+    clearInterval(this.timer);
+  } 
+
+  resettime(){
+    this.stop();
+    this.intevaltime_s = 0;
+    this.totaltime_s =  0;  
+    this.interval_idx = 0;  
   }
 }
 
-function getTrainingDuration() {
-  return (
-    document
-      .getElementById("spreadsheet")
-      .jexcel.getColumnData(0)
-      .filter(Boolean)
-      .map(parseFloat)
-      .reduce((pv, cv) => pv + cv, 0) * 60
-  );
+let INTERVALTIMER = new Intervaltimer();
+
+function stoptraining() { 
+  INTERVALTIMER.stop();
 }
 
+
 function starttraining() {
-  duration_s = getTrainingDuration();
-  document.getElementById("butstart").style.visibility = "hidden";
   document.getElementById("informationpopup").style.visibility = "hidden";
   document.getElementById("CsvInput").style.visibility = "hidden";
-  StartIntervals();
+  INTERVALTIMER.start();
 }
 
 const video = document.querySelector("video");
@@ -305,6 +327,23 @@ function DeleteAllRows(tableref, fheader = false) {
     tableref.deleteRow(i);
   }
 }
+
+document.getElementById("butcsvdownload").onclick = function () {
+  const table = document.getElementById("spreadsheet").jexcel; 
+  const nrows = table.getColumnData(0).filter(Boolean).length;
+  let csvContent = "data:text/csv;charset=utf-8," 
+  csvContent = csvContent.concat(table.getHeaders());
+  for(let i = 0;i < nrows;i++){
+    csvContent = csvContent.concat(`\n${table.getRowData(i)}`);
+  }
+  console.log(csvContent);
+  var encodedUri = encodeURI(csvContent);
+  var link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "TrainingData.csv");
+  document.body.appendChild(link);
+  link.click();
+};
 
 // ---------------
 // Audiocontrols
