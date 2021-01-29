@@ -30,7 +30,7 @@ body {
   font-size: 100%;
   font-family: 'Open Sans', sans-serif;
 }
-video{
+VIDEO{
   position: absolute;
   width: 100%;
   top: 0px;
@@ -69,8 +69,9 @@ hr{
   background-color: var(--background);
   margin-left: -125px;
   border-radius: 10px;
+  letter-spacing: 3px;
   hr{
-    margin: 0px;
+    margin: 0px;   
   }
 }
 
@@ -159,17 +160,36 @@ hr{
   display: inline-block;
   width: 35px;
   height: 35px;
-
-  background-image: url("../img/nextsong.svg");
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-size: cover;
   border: 0px;
   outline:none;
   &:hover{
     filter: opacity(0.5);
   }
 }
+
+%nextsongsvg{
+  background-image: url("../img/nextsong.svg");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+%resetsvg{
+  background-image: url("../img/restart.svg");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+%popupsvg{
+  background-image: url("../img/popup.svg");
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 
 .musiccontrols{
   display: flex;
@@ -178,13 +198,24 @@ hr{
   align-items: center;
 }
 
+.resetbutton{
+  @extend %resetsvg;
+  @extend %arrow;
+}
+
+.openpopupbutton{
+  @extend %popupsvg;
+  @extend %arrow;
+}
 
 .prevbutton{
+  @extend %nextsongsvg;
   @extend %arrow;
   transform: rotate(180deg);
 }
 
 .nextbutton { 
+  @extend %nextsongsvg;
   @extend %arrow;  
 } 
 
@@ -243,7 +274,7 @@ li:focus {
 
   svg{    
     position: absolute;
-    animation: MoveUpDown 2s linear infinite;
+    animation: MoveUpDown 2.5s linear infinite;
     width:35%;
     polyline{
       fill:none;
@@ -263,10 +294,10 @@ li:focus {
 
 @keyframes MoveUpDown {
   0%, 100% {
-    top: 110px;
+    top: 130px;
   }
   50% {
-    top: 160px;
+    top: 180px;
   }
 }
 
@@ -501,6 +532,17 @@ li:focus {
 .popu-svg{
   @extend %background-img;
   background-image: url("../img/popup.svg");
+}
+
+.reset-svg{
+  @extend %background-img;
+  background-image: url("../img/restart.svg");
+}
+
+.tsti-svg{
+  @extend %background-img;
+  background-size: 70%;
+  background-image: url("../img/testinterval.svg");
 }
 
 .circlemenu-item{

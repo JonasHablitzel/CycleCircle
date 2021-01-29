@@ -1,20 +1,53 @@
-const whistle = new Audio("sounds/gymnasium.wav");
+const WHISTLE = new Audio("sounds/gymnasium.wav");
 
-const colormin = getComputedStyle(document.querySelector(":root"))
+const COLORMIN = getComputedStyle(document.querySelector(":root"))
   .getPropertyValue("--intensitymin")
   .replace("#", "")
   .trim();
-const colormid = getComputedStyle(document.querySelector(":root"))
+const COLORMID = getComputedStyle(document.querySelector(":root"))
   .getPropertyValue("--intensitymid")
   .replace("#", "")
   .trim();
-const colormax = getComputedStyle(document.querySelector(":root"))
+const COLORMAX = getComputedStyle(document.querySelector(":root"))
   .getPropertyValue("--intensitymax")
   .replace("#", "")
   .trim();
-const effortbins = 10;
+const EFFORTSBINS = 10;
+
+// ---------------
+// Initialaztion
+// ---------------
+
+//Connext links to file Uploads, Downloads
 
 initspreadsheet();
+let POPUPWIN = null;
+
+
+
+
+document.getElementById("DownldTrainLink").addEventListener("click",downloadtable,false);
+document.getElementById("OpenPopupLink").addEventListener("click",openpopup,false);
+document.getElementById("OpenExampleLink").addEventListener("click",settesttraining,false);
+document.getElementById("ResetTraining").addEventListener("click",function(e){
+  if(INTERVALTIMER){
+    INTERVALTIMER.resettime();
+  }
+  e.preventDefault();
+},false);
+
+const VIDEO = document.querySelector("VIDEO");
+const HDCONSTRAINTS = {
+  video: { width: { exact: 640 }, height: { exact: 480 } },
+  audio: false,
+};
+
+navigator.mediaDevices.getUserMedia(HDCONSTRAINTS).then((stream) => {
+  VIDEO.srcObject = stream;
+});
+
+
+
 
 function createemty(maxrows = 80) {
   const currentlen = document.getElementById("spreadsheet").jexcel.rows.length;
@@ -57,7 +90,6 @@ function enableAll(){
     for (let j = 0; j < nrows; j++) {
       const colchar = String.fromCharCode(i + 65);
       const cellidx = `${colchar}${j + 1}`;
-      console.log(cellidx);
       table.setReadOnly(cellidx, false);
     }
   }
@@ -74,20 +106,78 @@ function disableRow(idxrow) {
   }
 }
 
-let openFile = function (event) {
-  let input = event.target;
-  let reader = new FileReader();
-  let csv;
-  reader.onload = function () {
-    csv = reader.result;
-    const array = csvstrtoarray(csv);
-    if (array.length > 0) {
-      document.getElementById("spreadsheet").jexcel.setData(array);
-    }
-  };
+function settableata(array){
+  console.log(array);
+  if (array.length > 0) {      
+    INTERVALTIMER.resettime();
+    document.getElementById("spreadsheet").jexcel.setData(array);      
+  }
+}
 
-  reader.readAsText(input.files[0]);
+function settesttraining(){
+  // Example Traing Data from 30\30 
+  const testtraining = [
+  {duartion: 10, intensity: 3, cadence: 100},
+  {duartion: 7, intensity: 6, cadence: 100},
+  {duartion: 5, intensity: 3, cadence: 90},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90} , 
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 5, intensity: 3, cadence: 90},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 5, intensity: 3, cadence: 90},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 7, intensity: 3, cadence: 90},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 0.5, intensity: 2, cadence: 110},
+  {duartion: 0.5, intensity: 8, cadence: 90},
+  {duartion: 12, intensity: 3, cadence: 110},
+  ];
+  settableata(testtraining);
+}
+
+
+function handleuploadtrain(files) {
+  let reader = new FileReader();
+  reader.onload = function () {
+    let csv = reader.result;
+    settableata(csvstrtoarray(csv));
+  };
+  reader.readAsText(files[0]);
 };
+
+
+
 
 function strtolist(lineStr) {
   return lineStr.split(",").map(parseFloat);
@@ -112,12 +202,12 @@ function pickHex(gradientratio) {
   let ratio = 0;
 
   if (gradientratio >= 0.5) {
-    color1 = colormid;
-    color2 = colormax;
+    color1 = COLORMID;
+    color2 = COLORMAX;
     ratio = (gradientratio - 0.5) * 2;
   } else {
-    color1 = colormin;
-    color2 = colormid;
+    color1 = COLORMIN;
+    color2 = COLORMID;
     ratio = gradientratio * 2;
   }
 
@@ -143,7 +233,7 @@ function pad2(n) {
 
 function changeintensity(intensityzone) {
   const root = document.querySelector(":root");
-  const fraction = intensityzone / effortbins;
+  const fraction = intensityzone / EFFORTSBINS;
   const degrees = Math.round(fraction * 180);
   document.getElementById("intenstitle").innerText = intensityzone;
   const color = pickHex(fraction);
@@ -168,12 +258,12 @@ function showclocks(rest_s_ges, rest_s_interval) {
 }
 
 function playsound() {
-  whistle.play();
-  whistle.currentTime = 0;
+  WHISTLE.play();
+  WHISTLE.currentTime = 0;
 }
 
 function showcountdown(rest_s) {
-  if (rest_s <= 5) {
+  if (rest_s <= 5 && rest_s >= 0)  {
     document.getElementById("lastseconds").innerHTML = rest_s;
   } else {
     document.getElementById("lastseconds").innerHTML = "";
@@ -199,6 +289,8 @@ class Intervaltimer{
     this.intervaltime_s = 0;
     this.totalduration = 0;
     this.interval_idx = 0;
+    this.resttotal_s = 0;
+    this.restinterval_s = -1;
     this.paused = true;
     this.interval = {};
     this.timer = null;
@@ -207,7 +299,6 @@ class Intervaltimer{
   updateInterval(){
     let ls = document.getElementById("spreadsheet").jexcel.getRowData(this.interval_idx);    
     this.interval = { duartion: ls[0] * 60, intensity: ls[1], cadence: ls[2] };
-    console.log(this.interval);
     disableRow(this.interval_idx);
     this.intervaltime_s = 0;
   }
@@ -225,7 +316,6 @@ class Intervaltimer{
   updatetime(){
     this.resttotal_s = this.totalduration - this.totaltime_s;
     this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
-    console.log(this.restinterval_s);
     if (this.restinterval_s === 0 ) {
       this.interval_idx = this.interval_idx + 1
       this.updateInterval();
@@ -235,14 +325,15 @@ class Intervaltimer{
       this.resttotal_s = this.totalduration - this.totaltime_s;
       this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
     }
-
     if (this.restinterval_s % 10 === 0){
       this.updateTotal();
+    }
+    if(this.resttotal_s === 0){
+      this.resettime();
     }
   }
 
   draw(){
-    console.log(this.restinterval_s);
     if (this.restinterval_s === 0) {
       this.interval_idx = this.interval_idx + 1;   
       this.drawgauges();
@@ -271,11 +362,9 @@ class Intervaltimer{
 
 
   start(){
-
     this.updateTotal(); 
     if(this.totalduration > 0){
       document.getElementById("StartStopTraining").classList.add("paused");
-      document.getElementById("CsvInput").style.visibility = "hidden";
       document.getElementById("informationpopup").style.visibility = "hidden";
       this.paused = false;
       this.updatetime();
@@ -287,8 +376,8 @@ class Intervaltimer{
 
   stop(){
     clearInterval(this.timer);
+    changegauges(0,0);
     document.getElementById("StartStopTraining").classList.remove("paused");
-    document.getElementById("CsvInput").style.visibility = "visible";
     document.getElementById("informationpopup").style.visibility = "visible";
     this.paused = true;
   } 
@@ -296,9 +385,14 @@ class Intervaltimer{
   resettime(){
     this.stop();
     enableAll();
-    this.intevaltime_s = 0;
-    this.totaltime_s =  0;  
-    this.interval_idx = 0;  
+    this.totaltime_s = 0;
+    this.intervaltime_s = 0;
+    this.totalduration = 0;
+    this.interval_idx = 0;
+    this.resttotal_s = 0;
+    this.restinterval_s = -1;
+    this.interval = {};
+    this.drawclocks();
   }
 }
 
@@ -311,22 +405,22 @@ function stoptraining() {
 
 document.getElementById("StartStopTraining").onclick = (e) => {
   if (INTERVALTIMER.paused) {
-    INTERVALTIMER.start();
-    
+    INTERVALTIMER.start();    
   } else {
     INTERVALTIMER.stop();    
   }
 };
 
 
-const video = document.querySelector("video");
-const hdConstraints = {
-  video: { width: { exact: 640 }, height: { exact: 480 } },
-  audio: false,
-};
-navigator.mediaDevices.getUserMedia(hdConstraints).then((stream) => {
-  video.srcObject = stream;
-});
+document.getElementById("UploadTrainLink").addEventListener("click",function(e){
+  const fileElem = document.getElementById("UploadTrain");
+  if(!INTERVALTIMER.paused){
+    alert("not possible while Training is active");
+  }else if(fileElem){
+    fileElem.click();
+  }
+  e.preventDefault();
+},false);
 
 window.addEventListener(
   "keydown",
@@ -342,7 +436,6 @@ window.addEventListener(
         ).getPropertyValue(`--show8000`);
 
         const showstate = wattvisible == "hidden" ? "visible" : "hidden";
-        console.log(showstate, wattvisible);
         document
           .querySelector(":root")
           .style.setProperty("--show8000", showstate);
@@ -370,7 +463,6 @@ function InsertRow(tableref, textlist = ["a", "", ""]) {
 
 function InsertRows(tableref, textarray) {
   const nrows = textarray.length;
-  console.log(nrows);
   for (let i = 0; i < nrows; i++) {
     InsertRow(tableref, textarray[i]);
   }
@@ -384,7 +476,7 @@ function DeleteAllRows(tableref, fheader = false) {
   }
 }
 
-document.getElementById("butcsvdownload").onclick = function () {
+function downloadtable() {
   const table = document.getElementById("spreadsheet").jexcel; 
   const nrows = table.getColumnData(0).filter(Boolean).length;
   let csvContent = "data:text/csv;charset=utf-8," 
@@ -392,7 +484,6 @@ document.getElementById("butcsvdownload").onclick = function () {
   for(let i = 0;i < nrows;i++){
     csvContent = csvContent.concat(`\n${table.getRowData(i)}`);
   }
-  console.log(csvContent);
   var encodedUri = encodeURI(csvContent);
   var link = document.createElement("a");
   link.setAttribute("href", encodedUri);
@@ -405,62 +496,76 @@ document.getElementById("butcsvdownload").onclick = function () {
 // Audiocontrols
 // ---------------
 
-const music_player = document.getElementById("MusicPlayer");
-const song_list = document.getElementById("SongList");
+const MUSICPLAYER = document.getElementById("MusicPlayer");
 
-let songfiles = [];
+document.getElementById("SongInputLink").addEventListener("click",function(e){
+  const fileElem = document.getElementById("SongInput");
+  if(fileElem){
+    fileElem.click();
+  }
+  e.preventDefault();
+},false);
 
-document.getElementById("SongInput").onchange = function (e) {
-  if (this.files.length > 0) {
-    createPlaylist(this.files);
-    songfiles = this.files;
-    song_list.value = 0;
-    music_player.pause();
-    song_list.dispatchEvent(new Event("change"));
+MUSICPLAYER.addEventListener("ended", nextsong, false);
+document.getElementById("NextTrack").addEventListener("click", nextsong, false);
+document.getElementById("PrevTrack").addEventListener("click", prevsong, false);
+document.getElementById("SongList").addEventListener("change", changesong, false);
+
+function handlesonginput(files) {
+  if (files.length > 0) {
+    createPlaylist(files);
+    const songlist = document.getElementById("SongList");
+    songlist.value = 0;
+    MUSICPLAYER.pause();
+    songlist.dispatchEvent(new Event("change"));
   }
 };
 
-function createPlaylist(array) {
-  song_list.innerHTML = "";
-  for (let i = 0; i < array.length; i++) {
+function createPlaylist(files) {
+  const songlist = document.getElementById("SongList");
+  songlist.innerHTML = "";  
+  for (let i = 0; i < files.length; i++) {
     // Create the list item:
     let opt = document.createElement("option");
     opt.value = i;
-    opt.innerHTML = array[i].name;
-    song_list.appendChild(opt);
+    opt.innerHTML = files[i].name;
+    
+    songlist.appendChild(opt);
   }
 }
 
 function changesong() {
-  music_player.src = URL.createObjectURL(songfiles[song_list.selectedIndex]);
-  music_player.play();
+  const songlist = document.getElementById("SongList");
+  const songinput = document.getElementById("SongInput");
+  MUSICPLAYER.src = URL.createObjectURL(songinput.files[songlist.selectedIndex]);
+  MUSICPLAYER.play();
 }
 
-song_list.addEventListener("change", changesong, false);
-music_player.addEventListener("ended", nextsong, false);
-document.getElementById("NextTrack").addEventListener("click", nextsong, false);
-document.getElementById("PrevTrack").addEventListener("click", prevsong, false);
+
 
 function nextsong() {
-  let i = song_list.selectedIndex;
-  if (i === songfiles.length - 1) {
+  const songlist = document.getElementById("SongList");
+  let i = songlist.selectedIndex;
+  const songinputlen = document.getElementById("SongInput").files.length;
+  if (i === songinputlen - 1) {
     i = 0;
   } else {
     i++;
   }
-  song_list.value = i;
-  song_list.dispatchEvent(new Event("change"));
+  songlist.value = i;
+  songlist.dispatchEvent(new Event("change"));
 }
 
 function prevsong() {
-  let i = song_list.selectedIndex;
+  const songlist = document.getElementById("SongList");
+  let i = songlist.selectedIndex;
   if (i - 1 < 0) {
     i = 0;
   } else {
     i--;
   }
-  song_list.value = i;
-  song_list.dispatchEvent(new Event("change"));
+  songlist.value = i;
+  songlist.dispatchEvent(new Event("change"));
 }
 
 function pad(num, size) {
@@ -470,24 +575,25 @@ function pad(num, size) {
 }
 
 function formattominsec(time) {
-  const min = pad(Math.floor(time / 60), 2);
-  const sec = pad(Math.floor(time % 60), 2);
+  const correcttime = time < 0 ? 0 : time 
+  const min = pad(Math.floor(correcttime / 60), 2);
+  const sec = pad(Math.floor(correcttime % 60), 2);
   return `${min}:${sec}`;
 }
 
 document.getElementById("PlayPause").onclick = (e) => {
-  if (music_player.paused) {
-    music_player.play();
+  if (MUSICPLAYER.paused) {
+    MUSICPLAYER.play();
   } else {
-    music_player.pause();
+    MUSICPLAYER.pause();
   }
 };
 
-music_player.onplay = (e) => {
+MUSICPLAYER.onplay = (e) => {
   document.getElementById("PlayPause").classList.add("paused");
 };
 
-music_player.onpause = (e) => {
+MUSICPLAYER.onpause = (e) => {
   document.getElementById("PlayPause").classList.remove("paused");
 };
 
@@ -495,15 +601,13 @@ document
   .getElementById("PlayProgressBar")
   .addEventListener("click", function (e) {
     let percent = e.offsetX / this.offsetWidth;
-    console.log(percent);
-    console.log(this.offsetWidth);
-    music_player.currentTime = parseFloat(percent) * music_player.duration;
+    MUSICPLAYER.currentTime = parseFloat(percent) * MUSICPLAYER.duration;
     this.value = percent / 100;
   });
 
-music_player.addEventListener("timeupdate", function () {
-  const currenttime = music_player.currentTime;
-  const duration = music_player.duration;
+MUSICPLAYER.addEventListener("timeupdate", function () {
+  const currenttime = MUSICPLAYER.currentTime;
+  const duration = MUSICPLAYER.duration;
   let percent = (currenttime / duration) * 100;
   document.getElementById("MusicTime").innerText = formattominsec(currenttime);
   const playprogressbar = document.getElementById("PlayProgressBar");
@@ -512,8 +616,6 @@ music_player.addEventListener("timeupdate", function () {
     playprogressbar.value = 0;
   } else {
     playprogressbar.value = percent.toFixed(1);
-    console.log(duration);
-    console.log(formattominsec(duration));
     musicduration.innerText = formattominsec(duration);
   }
 });
@@ -521,30 +623,27 @@ music_player.addEventListener("timeupdate", function () {
 document
   .getElementById("volume-control")
   .addEventListener("input", function (e) {
-    music_player.volume = e.currentTarget.value / 100;
+    MUSICPLAYER.volume = e.currentTarget.value / 100;
   });
 
 // ---------------
 // Popupwindow
 // ---------------
 
-let popupwin = null;
-
-const popupwinpara =
-  "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
-
 function openpopup() {
-  popupwin = window.open("popup.html", "PopUpTimer", popupwinpara);
+  const popupwinpara =
+  "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
+  POPUPWIN = window.open("popup.html", "PopUpTimer", popupwinpara);
 }
 
 function sendtopopup() {
-  if (popupwin != null && !popupwin.closed) {
-    const Popcurtime = popupwin.document.getElementById("PopTotalcountdown");
-    const Popintensity = popupwin.document.getElementById(
+  if (POPUPWIN != null && !POPUPWIN.closed) {
+    const Popcurtime = POPUPWIN.document.getElementById("PopTotalcountdown");
+    const Popintensity = POPUPWIN.document.getElementById(
       "PopIntervalcountdown"
     );
-    const PopIntenstitle = popupwin.document.getElementById("PopIntenstitle");
-    const PopCadencetitle = popupwin.document.getElementById("PopCadencetitle");
+    const PopIntenstitle = POPUPWIN.document.getElementById("PopIntenstitle");
+    const PopCadencetitle = POPUPWIN.document.getElementById("PopCadencetitle");
     Popcurtime.innerHTML = document.getElementById("totalcountdown").innerHTML;
     Popintensity.innerHTML = document.getElementById(
       "intervalcountdown"

@@ -11,7 +11,7 @@
    viewBox="0 0 24 24"
    id="Layer_1"
    data-name="Layer 1"
-   sodipodi:docname="popup.svg"
+   sodipodi:docname="restart.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -26,9 +26,9 @@
      inkscape:window-height="1056"
      id="namedview9"
      showgrid="false"
-     inkscape:zoom="27.812867"
-     inkscape:cx="10.719069"
-     inkscape:cy="8.9123158"
+     inkscape:zoom="13.906434"
+     inkscape:cx="22.048927"
+     inkscape:cy="-0.22974116"
      inkscape:window-x="1920"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -50,28 +50,24 @@
     <style
        id="style2">.cls-1{fill:none;stroke:#1d1d1b;stroke-linecap:round;stroke-linejoin:round;stroke-width:2px;}</style>
   </defs>
-  <path
-     style="fill:none;stroke:#1d1d1b;stroke-width:2px;stroke-linecap:round;stroke-linejoin:round"
-     id="_Path_"
-     data-name="&lt;Path&gt;"
-     d="M 20.31,13.482683 V 17.74 c 0,1.010681 -0.819319,1.83 -1.83,1.83 h -13 c -1.0106811,0 -1.8303199,-0.949868 -1.83,-1.83 0,0 -0.023503,-15.4935554 0,-13.65 0,0 0.011386,-1.7974892 1.83,-1.83 0,0 3.1421047,0.016018 3.1981677,0"
-     class="cls-1"
-     inkscape:connector-curvature="0"
-     sodipodi:nodetypes="cssssssc" />
-  <line
-     style="fill:none;stroke:#1d1d1b;stroke-width:2px;stroke-linecap:round;stroke-linejoin:round"
-     y2="3.4644661"
-     y1="10.535534"
-     x2="18.857569"
-     x1="11.786501"
-     id="_Path_2"
-     data-name="&lt;Path&gt;"
-     class="cls-1" />
   <polyline
-     transform="rotate(45,17.326034,12.464243)"
-     style="fill:none;stroke:#1d1d1b;stroke-width:2px;stroke-linecap:round;stroke-linejoin:round"
+     transform="matrix(-0.44948249,-0.81243027,0.81168934,-0.45081911,7.4487001,18.411983)"
+     style="fill:none;stroke:#1d1d1b;stroke-width:2.15405679px;stroke-linecap:round;stroke-linejoin:round"
      points="7.47 8 12 3.47 16.53 8"
      id="_Path_3"
      data-name="&lt;Path&gt;"
      class="cls-1" />
+  <path
+     sodipodi:type="spiral"
+     style="fill:none;fill-rule:evenodd;stroke:#1d1d1d;stroke-width:0.99609649;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="path839"
+     sodipodi:cx="7.2628255"
+     sodipodi:cy="12.925988"
+     sodipodi:expansion="0"
+     sodipodi:revolution="0.75"
+     sodipodi:radius="4.3444085"
+     sodipodi:argument="-8.6014614"
+     sodipodi:t0="0"
+     d="M 4.3095288,9.7397798 C 6.04516,8.1310232 8.8402774,8.2370604 10.449034,9.9726915 12.05779,11.708323 11.951753,14.50344 10.216122,16.112197 8.480491,17.720953 5.6853736,17.614916 4.0766171,15.879285"
+     transform="matrix(1.9822754,0.34574973,-0.3424275,1.9740031,1.4320669,-14.856112)" />
 </svg>
