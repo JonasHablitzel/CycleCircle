@@ -25,8 +25,9 @@ function initspreadsheet() {
   let array = [{ duartion: "", intensity: "", cadence: "" }];
   jexcel(document.getElementById("spreadsheet"), {
     data: array,
-    defaultColWidth: 250,
+    defaultColWidth: 220,
     tableOverflow: true,
+    tableHeight:'360px',
     columns: [
       {
         type: "numeric",
@@ -36,7 +37,7 @@ function initspreadsheet() {
       {
         type: "numeric",
         name: "intensity",
-        title: "Power 0-10",
+        title: "Intensity 0-10",
       },
       {
         type: "numeric",
@@ -48,13 +49,27 @@ function initspreadsheet() {
   });
 }
 
+function enableAll(){
+  const table = document.getElementById("spreadsheet").jexcel;
+  let ncol = table.getHeaders().split(",").length;
+  let nrows = table.rows.length;
+  for (let i = 0; i < ncol; i++) {
+    for (let j = 0; j < nrows; j++) {
+      const colchar = String.fromCharCode(i + 65);
+      const cellidx = `${colchar}${j + 1}`;
+      console.log(cellidx);
+      table.setReadOnly(cellidx, false);
+    }
+  }
+}
+
+
 function disableRow(idxrow) {
   const table = document.getElementById("spreadsheet").jexcel;
   let ncol = table.getHeaders().split(",").length;
   for (let i = 0; i < ncol; i++) {
     const colchar = String.fromCharCode(i + 65);
     const cellidx = `${colchar}${idxrow + 1}`;
-    console.log(cellidx, colchar, i);
     table.setReadOnly(cellidx, true);
   }
 }
@@ -178,28 +193,25 @@ function changegauges(intensity, cadence) {
 }
 
 
-
-
-
-
-
-
 class Intervaltimer{
   constructor() {    
     this.totaltime_s = 0;
     this.intervaltime_s = 0;
     this.totalduration = 0;
     this.interval_idx = 0;
+    this.paused = true;
     this.interval = {};
     this.timer = null;
   }
 
   updateInterval(){
-    let ls = document.getElementById("spreadsheet").jexcel.getRowData(this.interval_idx);
+    let ls = document.getElementById("spreadsheet").jexcel.getRowData(this.interval_idx);    
     this.interval = { duartion: ls[0] * 60, intensity: ls[1], cadence: ls[2] };
+    console.log(this.interval);
+    disableRow(this.interval_idx);
+    this.intervaltime_s = 0;
   }
-
-  updateTotalDuration(){
+  updateTotal(){
     this.totalduration = (
       document
         .getElementById("spreadsheet")
@@ -210,40 +222,80 @@ class Intervaltimer{
     );
   }
 
-  increasetime(){    
-    let resttotal_s = this.totalduration - this.totaltime_s;
-    let restinterval_s = this.interval.duartion - this.intervaltime_s;   
-    if (restinterval_s === 0) {
-      this.interval_idx = this.interval_idx + 1;
+  updatetime(){
+    this.resttotal_s = this.totalduration - this.totaltime_s;
+    this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
+    console.log(this.restinterval_s);
+    if (this.restinterval_s === 0 ) {
+      this.interval_idx = this.interval_idx + 1
       this.updateInterval();
-      this.updateTotalDuration();
-      disableRow(this.interval_idx);
-      changegauges(this.curinterval.intensity, this.curinterval.cadence);
-      playsound();
+    }else if(isNaN(this.restinterval_s)){
+      this.updateTotal();
+      this.updateInterval();
+      this.resttotal_s = this.totalduration - this.totaltime_s;
+      this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
     }
 
-    showclocks(resttotal_s, restinterval_s);
-    showcountdown(restinterval_s);
-    sendtopopup();
+    if (this.restinterval_s % 10 === 0){
+      this.updateTotal();
+    }
+  }
 
+  draw(){
+    console.log(this.restinterval_s);
+    if (this.restinterval_s === 0) {
+      this.interval_idx = this.interval_idx + 1;   
+      this.drawgauges();
+    }
+    this.drawclocks();
+  }
+
+  increasetime(){    
+    this.updatetime();
+    this.draw();
     this.intervaltime_s = this.intervaltime_s + 1;
     this.totaltime_s =  this.totaltime_s + 1;   
   }
 
+  drawgauges(){
+    changegauges(this.interval.intensity, this.interval.cadence);
+    playsound();
+  }
+
+
+  drawclocks(){
+    showclocks(this.resttotal_s, this.restinterval_s);
+    showcountdown(this.restinterval_s);
+    sendtopopup();
+  }
+
+
   start(){
-    this.updateInterval();
-    this.updateTotalDuration();
+
+    this.updateTotal(); 
     if(this.totalduration > 0){
+      document.getElementById("StartStopTraining").classList.add("paused");
+      document.getElementById("CsvInput").style.visibility = "hidden";
+      document.getElementById("informationpopup").style.visibility = "hidden";
+      this.paused = false;
+      this.updatetime();
+      this.drawclocks();
+      this.drawgauges();
       this.timer = setInterval(() => this.increasetime(),1000);
     }    
   }
 
   stop(){
     clearInterval(this.timer);
+    document.getElementById("StartStopTraining").classList.remove("paused");
+    document.getElementById("CsvInput").style.visibility = "visible";
+    document.getElementById("informationpopup").style.visibility = "visible";
+    this.paused = true;
   } 
 
   resettime(){
     this.stop();
+    enableAll();
     this.intevaltime_s = 0;
     this.totaltime_s =  0;  
     this.interval_idx = 0;  
@@ -257,11 +309,15 @@ function stoptraining() {
 }
 
 
-function starttraining() {
-  document.getElementById("informationpopup").style.visibility = "hidden";
-  document.getElementById("CsvInput").style.visibility = "hidden";
-  INTERVALTIMER.start();
-}
+document.getElementById("StartStopTraining").onclick = (e) => {
+  if (INTERVALTIMER.paused) {
+    INTERVALTIMER.start();
+    
+  } else {
+    INTERVALTIMER.stop();    
+  }
+};
+
 
 const video = document.querySelector("video");
 const hdConstraints = {
