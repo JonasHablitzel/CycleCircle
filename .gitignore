@@ -7,3 +7,4 @@ js/dist/app.dev.js
 css/style.css
 test2.csv
 .gitignore
+releases/*

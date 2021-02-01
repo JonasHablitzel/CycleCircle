@@ -21,10 +21,6 @@ const EFFORTSBINS = 10;
 //Connext links to file Uploads, Downloads
 
 initspreadsheet();
-let POPUPWIN = null;
-
-
-
 
 document.getElementById("DownldTrainLink").addEventListener("click",downloadtable,false);
 document.getElementById("OpenPopupLink").addEventListener("click",openpopup,false);
@@ -357,7 +353,11 @@ class Intervaltimer{
   drawclocks(){
     showclocks(this.resttotal_s, this.restinterval_s);
     showcountdown(this.restinterval_s);
-    sendtopopup();
+    try {
+      sendtopopup();
+    } catch (error) {
+      console.error(error);
+    }    
   }
 
 
@@ -629,14 +629,16 @@ document
 // ---------------
 // Popupwindow
 // ---------------
+let POPUPWIN = null;
 
 function openpopup() {
   const popupwinpara =
   "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
   POPUPWIN = window.open("popup.html", "PopUpTimer", popupwinpara);
+  console.log(POPUPWIN);
 }
 
-function sendtopopup() {
+function sendtopopup() {  
   if (POPUPWIN != null && !POPUPWIN.closed) {
     const Popcurtime = POPUPWIN.document.getElementById("PopTotalcountdown");
     const Popintensity = POPUPWIN.document.getElementById(
