@@ -1,9 +1,9 @@
-# Foobar
+# Cycle Circle
 
-This Website can be used as a OBS background or for Tab sharing in Google Meets
+This Website can be used as a OBS background or for sharing as Tab in Google Meets or an other Program
 
 ## Online Version
-[label](https://www.rv-pfeil-magstadt.de/onlinetraining/)
+[LINK](https://www.rv-pfeil-magstadt.de/onlinetraining/)
 
 ## License
 
