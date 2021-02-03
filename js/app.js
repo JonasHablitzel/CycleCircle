@@ -32,16 +32,136 @@ document.getElementById("ResetTraining").addEventListener("click",function(e){
   e.preventDefault();
 },false);
 
-const VIDEO = document.querySelector("VIDEO");
+
 const HDCONSTRAINTS = {
-  video: { width: { exact: 640 }, height: { exact: 480 } },
+    video: {
+    width: {
+        min: 176,
+        ideal: 352,
+        max: 1280
+    },
+    height: {
+        min: 120,
+        ideal: 240,
+        max: 720
+    },
+    frameRate: {
+      max: 30,
+      ideal: 15,
+      min: 10
+    },
+    aspectRatio:1.33333,
+  },
   audio: false,
 };
 
-navigator.mediaDevices.getUserMedia(HDCONSTRAINTS).then((stream) => {
-  VIDEO.srcObject = stream;
-});
+const RESOLUTIONS = [
+  {
+    width: 176,
+    height: 120,
+  },
+  {
+    width: 352,
+    height: 240,
+  },
+  {
+    width: 640,
+    height: 480,
+  },
+  {
+    width: 720,
+    height: 480,
+  },
+  {
+    width: 1280,
+    height: 720,
+  },
+  {
+    width: 1920,
+    height: 1080,
+  },
+]
+  
 
+
+
+let MEDIASTREAMTRACK;
+
+navigator.mediaDevices.getUserMedia(HDCONSTRAINTS)
+  .then(gotMedia)
+  .catch(error => console.error('getUserMedia() error:', error));
+
+
+function get_min_max_capabilities(capabilities){
+
+  const resolutions = [...RESOLUTIONS];
+  const min = resolutions.findIndex(function(element) {
+    return element.height >= capabilities.height.min && element.width >= capabilities.width.min;
+  });
+
+  const max = resolutions.length - 1 - resolutions.reverse().findIndex(function(element) {
+    return element.height <= capabilities.height.max && element.width <= capabilities.width.max;
+  });
+  console.log(min,max,RESOLUTIONS[max])
+  return [min,max]
+}
+
+function get_closest_idx(goal,array){ 
+  console.log(goal,array);
+  const reduce = array.reduce(function(prev, curr, curidx) {
+    return (Math.abs(curr - goal) < Math.abs(prev.val - goal) ? {val:curr,idx:curidx} : prev);
+  },{val:0,idx:0});
+  return Math.min(reduce.idx);
+}
+
+function get_closest_setting(setting){
+  const widthIdx = get_closest_idx(setting.width,RESOLUTIONS.map(el => el.width))
+  const heightIdx = get_closest_idx(setting.height,RESOLUTIONS.map(el => el.height))
+  return Math.min(widthIdx,heightIdx)
+}
+
+
+function gotMedia(stream) {
+  const videoOut = document.getElementById("webcamvideo")
+  videoOut.srcObject = stream;
+  MEDIASTREAMTRACK = stream.getVideoTracks()[0];
+  
+  const capabilities = MEDIASTREAMTRACK.getCapabilities();
+  const settings = MEDIASTREAMTRACK.getSettings();
+  console.log(settings);
+  if (capabilities.width) {
+    const qualitySlider = document.getElementById("quality-control");
+    [qualitySlider.min,qualitySlider.max] = get_min_max_capabilities(capabilities);
+    qualitySlider.step = 1;
+    qualitySlider.value = get_closest_setting(settings);
+    let event = new Event('change');
+    qualitySlider.dispatchEvent(event);
+  }
+  if (capabilities.frameRate) {
+    console.log(capabilities.frameRate.max);
+    const fpsslider = document.getElementById("fps-control");
+    fpsslider.min = Math.max(5,capabilities.frameRate.min);
+    fpsslider.max = Math.max(30,capabilities.frameRate.max);
+    fpsslider.step = 5;
+    fpsslider.value = settings.frameRate;
+    let event = new Event('change');
+    fpsslider.dispatchEvent(event);
+  }
+}
+
+document.getElementById("quality-control").onchange = function(){  
+  const item = RESOLUTIONS[this.value];
+  MEDIASTREAMTRACK.applyConstraints({height: item.height, width: item.width })
+  .catch(error => console.error('Uh, oh, applyConstraints() error:', error));
+  document.getElementById("fps-control").value = MEDIASTREAMTRACK.getSettings().frameRate;
+  document.getElementById("resolutionspan").innerHTML = `${item.width} X ${item.height}`;
+}
+
+document.getElementById("fps-control").onchange = function(){
+  MEDIASTREAMTRACK.applyConstraints({ frameRate: this.value })
+  .catch(error => console.error('Uh, oh, applyConstraints() error:', error));
+  document.getElementById("fpsspan").innerHTML = `${this.value}`;
+}
 
 
 
@@ -74,7 +194,7 @@ function initspreadsheet() {
         title: "Cadence",
       },
     ],
-    minDimensions: [3, 80],
+    minDimensions: [3, 60],
   });
 }
 
@@ -245,12 +365,8 @@ function changerpm(cadence) {
 }
 
 function showclocks(rest_s_ges, rest_s_interval) {
-  document.getElementById("totalcountdown").innerHTML = formattominsec(
-    rest_s_ges
-  );
-  document.getElementById("intervalcountdown").innerHTML = formattominsec(
-    rest_s_interval
-  );
+  document.getElementById("totalcountdown").innerHTML = rest_s_ges.toString().toMMSS();
+  document.getElementById("intervalcountdown").innerHTML = rest_s_interval.toString().toMMSS();
 }
 
 function playsound() {
@@ -331,7 +447,6 @@ class Intervaltimer{
 
   draw(){
     if (this.restinterval_s === 0) {
-      this.interval_idx = this.interval_idx + 1;   
       this.drawgauges();
     }
     this.drawclocks();
@@ -574,6 +689,17 @@ function pad(num, size) {
   return num;
 }
 
+
+String.prototype.toMMSS = function () {
+  var sec_num = parseInt(this, 10); 
+  var minutes = Math.floor(sec_num / 60);
+  var seconds = sec_num - (minutes * 60);
+
+  if (minutes < 10) {minutes = "0"+minutes;}
+  if (seconds < 10) {seconds = "0"+seconds;}
+  return minutes+':'+seconds;
+}
+
 function formattominsec(time) {
   const correcttime = time < 0 ? 0 : time 
   const min = pad(Math.floor(correcttime / 60), 2);
@@ -605,20 +731,23 @@ document
     this.value = percent / 100;
   });
 
-MUSICPLAYER.addEventListener("timeupdate", function () {
-  const currenttime = MUSICPLAYER.currentTime;
-  const duration = MUSICPLAYER.duration;
-  let percent = (currenttime / duration) * 100;
-  document.getElementById("MusicTime").innerText = formattominsec(currenttime);
+MUSICPLAYER.addEventListener("timeupdate",updatemusicprogress); 
+
+function updatemusicprogress() {
+  const currenttime = this.currentTime;
+  const duration = this.duration;
+  const percent = (currenttime / duration) * 100;
+  const musictime = document.getElementById("MusicTime");  
   const playprogressbar = document.getElementById("PlayProgressBar");
   const musicduration = document.getElementById("MusicDuration");
   if (isNaN(parseFloat(duration)) || duration === 0) {
     playprogressbar.value = 0;
   } else {
     playprogressbar.value = percent.toFixed(1);
-    musicduration.innerText = formattominsec(duration);
+    musicduration.innerHTML = duration.toString().toMMSS();
+    musictime.innerHTML = currenttime.toString().toMMSS();
   }
-});
+}
 
 document
   .getElementById("volume-control")

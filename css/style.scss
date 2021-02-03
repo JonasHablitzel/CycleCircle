@@ -111,7 +111,6 @@ hr{
 
 #InputArea{
   width:750px;
-  margin: 30px;
 }
 
 #ControlArea{
@@ -241,12 +240,6 @@ hr{
   }
 }
 
-
-
-
-li:focus {
-  background: lightgreen;
-}
 
 #lastseconds{ 
   position: absolute;
@@ -404,35 +397,31 @@ li:focus {
 }
 
 
+
+#cadencetitle {
+  margin: 70px auto;
+  color: var(--cadencecolor);
+  font-size: 4rem;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
 .cadence {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin: 0 auto;
   width: 210px;
   height: 210px;
-  border-radius: 50%;
+  background: url("../img/cadence.svg") no-repeat center;
+  background-size: cover;
+
+}
+
+.spinner{
   animation-name: spin;
   animation-duration: var(--cadencespeed);
   animation-iteration-count: infinite;
   animation-timing-function: linear; 
-  &__title {
-    margin: 70px auto;
-    color: var(--cadencecolor);
-    font-size: 4rem;
-    left: 50%;
-    position: absolute;
-    transform: translateX(-50%);
-  }
-  &> div{
-    width: 30px;
-    height: 10px;
-    border-radius: 10px;
-    background-color: var(--cadencecolor);
-  }
 }
-
-
 
 @keyframes spin {
   from {
@@ -489,6 +478,7 @@ li:focus {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  margin: 30px;
 }
 
 .UploadContainer {
@@ -641,4 +631,9 @@ select::-webkit-scrollbar-track {
 select::-webkit-scrollbar-thumb {
   background-color: var(--thumbBG) ;
   border: 3px solid var(--scrollbarBG);
+}
+
+.rightalign{
+  float:right;
+  font-size: small;
 }

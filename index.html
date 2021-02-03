@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <VIDEO autoplay></VIDEO>
+  <VIDEO id="webcamvideo" autoplay></VIDEO>
   <img id="Watt" src="img/8000Watt.jpeg" />
   <div id="countcontainer">
     <div id="totalcountdown">00:00</div>
@@ -36,9 +36,7 @@
   <div id="cadenccontainer" class="container">
     <div class="cadencecontainer">
       <h1 id="cadencetitle" class="cadence__title">110</h1>
-      <div class="cadence">
-        <div class="top"></div>
-        <div class="bot"></div>
+      <div class="cadence spinner">
       </div>
     </div>
     <p>CADENCE</p>
@@ -91,6 +89,21 @@
       </p>
       <p>Changing of the interval Data while Training is possible</p>
       <p>With the press of the <b>"w"</b> key you can activate the <b>"8000Watt"</b> image </p>
+    </div>
+    <div id="VideoSetting" class="card">
+      <h2>Video Settings</h2>
+      <hr />
+      <p><b>Resolution</b>
+        <span id="resolutionspan" class="rightalign">
+          
+      </span></p>
+      <input type="range" id="quality-control"/>
+      <p><b>Frames per second</b>
+        <span  id="fpsspan" class="rightalign">
+          
+      </span></p>
+      <input type="range" id="fps-control"/>
+      <p>When Performance is too low, you can lower the video settings</p>
     </div>
     <script src="js/app.js"></script>
 </body>
