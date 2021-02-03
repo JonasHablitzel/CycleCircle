@@ -37,12 +37,12 @@ const HDCONSTRAINTS = {
     video: {
     width: {
         min: 176,
-        ideal: 352,
+        ideal: 720,
         max: 1280
     },
     height: {
         min: 120,
-        ideal: 240,
+        ideal: 480,
         max: 720
     },
     frameRate: {
@@ -481,6 +481,7 @@ class Intervaltimer{
     if(this.totalduration > 0){
       document.getElementById("StartStopTraining").classList.add("paused");
       document.getElementById("informationpopup").style.visibility = "hidden";
+      document.getElementById("informationpopupsvg").style.animationPlayState = "paused";
       this.paused = false;
       this.updatetime();
       this.drawclocks();
@@ -494,6 +495,7 @@ class Intervaltimer{
     changegauges(0,0);
     document.getElementById("StartStopTraining").classList.remove("paused");
     document.getElementById("informationpopup").style.visibility = "visible";
+    document.getElementById("informationpopupsvg").style.animationPlayState = "running";
     this.paused = true;
   } 
 

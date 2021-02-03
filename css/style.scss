@@ -266,8 +266,6 @@ hr{
   align-items: center;
 
   svg{    
-    position: absolute;
-    animation: MoveUpDown 2.5s linear infinite;
     width:35%;
     polyline{
       fill:none;
@@ -284,16 +282,6 @@ hr{
     //color: var(--cadencecolor);
   }
 }
-
-@keyframes MoveUpDown {
-  0%, 100% {
-    top: 130px;
-  }
-  50% {
-    top: 180px;
-  }
-}
-
 
 
 *,
@@ -429,6 +417,21 @@ hr{
   }
   to {
       transform:rotate(360deg);
+  }
+}
+
+
+.moveupdown{
+  animation: MoveUpDown 3s linear infinite;
+  position: absolute;
+}
+
+@keyframes MoveUpDown {
+  0%, 100% {
+    transform: translateY(120px);
+  }
+  50% {
+    transform: translateY(200px);
   }
 }
 
