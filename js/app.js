@@ -1,4 +1,6 @@
-const WHISTLE = new Audio("sounds/gymnasium.wav");
+import gymnasiumaudio from "../sounds/gymnasium.wav"
+
+const WHISTLE = new Audio(gymnasiumaudio);
 
 const COLORMIN = getComputedStyle(document.querySelector(":root"))
   .getPropertyValue("--intensitymin")
