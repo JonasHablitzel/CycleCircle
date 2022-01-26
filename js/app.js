@@ -1,7 +1,5 @@
 import gymnasiumaudio from "../sounds/gymnasium.wav?url"
-popuphtml = `
-<!DOCTYPE html>
-<html>
+const popuphtml = `<html>
     <head>
         <style>
             :root {
@@ -68,8 +66,7 @@ popuphtml = `
             <div class="boxtitle">CADENCE</div>
         </div>        
     </body>
-</html>
-`
+</html>`
 
 const WHISTLE = new Audio(gymnasiumaudio);
 
@@ -838,7 +835,8 @@ let POPUPWIN = null;
 function openpopup() {
   const popupwinpara =
   "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
-  POPUPWIN = window.open(popuphtml, "PopUpTimer", popupwinpara);
+  POPUPWIN = window.open("", "PopUpTimer", popupwinpara);
+  POPUPWIN.document.write(popuphtml)
   console.log(POPUPWIN);
 }
 
