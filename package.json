@@ -5,7 +5,7 @@
     "dev": "yarn compile-sass && vite",
     "build": "yarn compile-sass && vite build",
     "preview": "yarn compile-sass && vite preview",
-    "compile-sass": "node-sass style.scss style.css"
+    "compile-sass": "node-sass styles/style.scss styles/style.css"
   },
   "devDependencies": {
     "node-sass": "^7.0.1",
