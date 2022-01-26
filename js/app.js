@@ -1,4 +1,5 @@
-import gymnasiumaudio from "../sounds/gymnasium.wav"
+import gymnasiumaudio from "../sounds/gymnasium.wav?url"
+import popuphtml from "../html/popup.html?raw"
 
 const WHISTLE = new Audio(gymnasiumaudio);
 
@@ -767,7 +768,7 @@ let POPUPWIN = null;
 function openpopup() {
   const popupwinpara =
   "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
-  POPUPWIN = window.open("popup.html", "PopUpTimer", popupwinpara);
+  POPUPWIN = window.open(popuphtml, "PopUpTimer", popupwinpara);
   console.log(POPUPWIN);
 }
 
