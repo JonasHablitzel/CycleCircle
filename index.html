@@ -1,110 +1,177 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <link rel="icon" type="image/jpeg" href="img/RVPfeil_Logo_Vektor.svg" />
+    <script src="https://bossanova.uk/jexcel/v4/jexcel.js"></script>
+    <script src="https://jsuites.net/v3/jsuites.js"></script>
+    <link rel="stylesheet" href="style.scss" />
+    <link
+      rel="stylesheet"
+      href="https://bossanova.uk/jexcel/v4/jexcel.css"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://jsuites.net/v3/jsuites.css"
+      type="text/css"
+    />
+  </head>
 
-<head>
-  <link rel="icon" type="image/jpeg" href="img/RVPfeil_Logo_Vektor.svg" />
-  <script src="https://bossanova.uk/jexcel/v4/jexcel.js"></script>
-  <script src="https://jsuites.net/v3/jsuites.js"></script>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://bossanova.uk/jexcel/v4/jexcel.css" type="text/css" />
-  <link rel="stylesheet" href="https://jsuites.net/v3/jsuites.css" type="text/css" />
-</head>
+  <body>
+    <video id="webcamvideo" autoplay></video>
+    <img id="Watt" src="img/8000Watt.jpeg" />
+    <div id="countcontainer">
+      <div id="totalcountdown">00:00</div>
+      <hr />
+      <div id="intervalcountdown">00:00</div>
+    </div>
+    <div id="lastseconds"></div>
+    <div id="informationpopup">
+      <p>For Setup Scroll down</p>
+      <svg id="informationpopupsvg" viewBox="-10 -10 100 90" class="moveupdown">
+        <polyline points="0,0 40,40 80,0" />
+        <polyline points="0,30 40,70 80,30" />
+      </svg>
+    </div>
+    <div id="intensitycontainer" class="container">
+      <div class="gaugecontainer">
+        <h1 id="intenstitle" class="intensity__title">0</h1>
+        <div class="intensity"></div>
+      </div>
+      <p>INTENSITY</p>
+    </div>
+    <div id="cadenccontainer" class="container">
+      <div class="cadencecontainer">
+        <h1 id="cadencetitle" class="cadence__title">110</h1>
+        <div class="cadence spinner"></div>
+      </div>
+      <p>CADENCE</p>
+    </div>
+    <div id="ControlArea">
+      <div id="MusicArea" class="card">
+        <h2>Select MP3 Files</h2>
+        <hr />
+        <div class="musiccontrols">
+          <button id="PrevTrack" class="prevbutton"></button>
+          <button id="PlayPause" class="playpausebutton"></button>
+          <button id="NextTrack" class="nextbutton"></button>
+        </div>
+        <div class="soundcontrols">
+          <p id="MusicTime">00:00</p>
+          <progress
+            id="PlayProgressBar"
+            value="0"
+            min="0"
+            max="100"
+            class="musicprogress"
+          ></progress>
+          <p id="MusicDuration">00:00</p>
+          <img src="img/Volume.svg" />
+          <input
+            type="range"
+            id="volume-control"
+            min="0"
+            max="100"
+            value="100"
+          />
+        </div>
+        <audio id="MusicPlayer"></audio>
+        <div>
+          <form id="SongForm">
+            <select
+              name="Songs"
+              id="SongList"
+              size="20"
+              class="musicplaylist"
+            ></select>
+          </form>
+        </div>
+        <a
+          id="SongInputLink"
+          class="circlemenu-item tooltip upld-svg"
+          tooltip="Upload"
+          flow="top"
+        ></a>
+        <input
+          type="file"
+          id="SongInput"
+          accept=".mp3"
+          multiple
+          style="display: none"
+          onchange="handlesonginput(this.files)"
+        />
+      </div>
+      <div id="InputArea" class="card">
+        <h2>Select Training</h2>
+        <hr />
+        <div class="musiccontrols">
+          <button id="OpenPopupLink" class="openpopupbutton"></button>
+          <button id="StartStopTraining" class="playpausebutton"></button>
+          <button id="ResetTraining" class="resetbutton"></button>
+        </div>
 
-<body>
-  <VIDEO id="webcamvideo" autoplay></VIDEO>
-  <img id="Watt" src="img/8000Watt.jpeg" />
-  <div id="countcontainer">
-    <div id="totalcountdown">00:00</div>
-    <hr />
-    <div id="intervalcountdown">00:00</div>
-  </div>
-  <div id="lastseconds"></div>
-  <div id="informationpopup">
-    <p>For Setup Scroll down</p>
-    <svg id="informationpopupsvg" viewBox="-10 -10 100 90" class="moveupdown">
-      <polyline points="0,0 40,40 80,0" />
-      <polyline points="0,30 40,70 80,30" />
-    </svg>
-  </div>
-  <div id="intensitycontainer" class="container">
-    <div class="gaugecontainer">
-      <h1 id="intenstitle" class="intensity__title">0</h1>
-      <div class="intensity"></div>
-    </div>
-    <p>INTENSITY</p>
-  </div>
-  <div id="cadenccontainer" class="container">
-    <div class="cadencecontainer">
-      <h1 id="cadencetitle" class="cadence__title">110</h1>
-      <div class="cadence spinner">
+        <input
+          type="file"
+          id="UploadTrain"
+          accept=".csv"
+          style="display: none"
+          onchange="handleuploadtrain(this.files)"
+        />
+        <div id="spreadsheet"></div>
+        <div class="circlenavbar plus-svg">
+          <ul class="circlemenu">
+            <li>
+              <a
+                id="UploadTrainLink"
+                class="circlemenu-item tooltip upld-svg"
+                tooltip="Upload Training"
+                flow="left"
+              ></a>
+            </li>
+            <li>
+              <a
+                id="DownldTrainLink"
+                class="circlemenu-item tooltip dwld-svg"
+                tooltip="Download Training"
+                flow="left"
+              ></a>
+            </li>
+            <li>
+              <a
+                id="OpenExampleLink"
+                class="circlemenu-item tooltip tsti-svg"
+                tooltip="Open Popup"
+                flow="top"
+              ></a>
+            </li>
+          </ul>
+        </div>
+        <p>
+          The traing file must be in .csv format with <b>","</b> not
+          <b>";"</b> as seperator
+        </p>
+        <p>Changing of the interval Data while Training is possible</p>
+        <p>
+          With the press of the <b>"w"</b> key you can activate the
+          <b>"8000Watt"</b> image
+        </p>
+      </div>
+      <div id="VideoSetting" class="card">
+        <h2>Video Settings</h2>
+        <hr />
+        <p>
+          <b>Resolution</b>
+          <span id="resolutionspan" class="rightalign"> </span>
+        </p>
+        <input type="range" id="quality-control" />
+        <p>
+          <b>Frames per second</b>
+          <span id="fpsspan" class="rightalign"> </span>
+        </p>
+        <input type="range" id="fps-control" />
+        <p>When Performance is too low, you can lower the video settings</p>
       </div>
     </div>
-    <p>CADENCE</p>
-  </div>
-  <div id="ControlArea">
-    <div id="MusicArea" class="card">
-      <h2>Select MP3 Files</h2>
-      <hr />
-      <div class="musiccontrols">
-        <button id="PrevTrack" class="prevbutton"></button>
-        <button id="PlayPause" class="playpausebutton"></button>
-        <button id="NextTrack" class="nextbutton"></button>
-      </div>
-      <div class="soundcontrols">
-        <p id="MusicTime">00:00</p>
-        <progress id="PlayProgressBar" value="0" min="0" max="100" class="musicprogress"></progress>
-        <p id="MusicDuration">00:00</p>
-        <img src="img/Volume.svg" />
-        <input type="range" id="volume-control" min="0" max="100" value="100" />
-      </div>
-      <audio id="MusicPlayer"></audio>
-      <div>
-        <form id="SongForm">
-          <select name="Songs" id="SongList" size="20" class="musicplaylist"></select>
-        </form>     
-      </div>
-      <a id="SongInputLink" class="circlemenu-item tooltip upld-svg" tooltip="Upload" flow="top"></a>
-      <input type="file" id="SongInput" accept=".mp3" multiple style="display: none;" onchange="handlesonginput(this.files)"/>   
-    </div>
-    <div id="InputArea" class="card">
-      <h2>Select Training</h2>
-      <hr />
-      <div class="musiccontrols">      
-        <button id="OpenPopupLink" class="openpopupbutton"></button>  
-        <button id="StartStopTraining" class="playpausebutton"></button>
-        <button id="ResetTraining" class="resetbutton"></button>
-      </div>
-      
-      <input type="file" id="UploadTrain" accept=".csv" style="display: none;" onchange="handleuploadtrain(this.files)">
-      <div id="spreadsheet"></div>
-      <div class="circlenavbar plus-svg">
-        <ul class="circlemenu">
-          <li><a id="UploadTrainLink" class="circlemenu-item tooltip upld-svg" tooltip="Upload Training" flow="left"></a></li>
-          <li><a id="DownldTrainLink" class="circlemenu-item tooltip dwld-svg" tooltip="Download Training" flow="left"></a></li>
-          <li><a id="OpenExampleLink"   class="circlemenu-item tooltip tsti-svg" tooltip="Open Popup" flow="top"></a></li>
-        </ul>
-      </div>
-      <p>
-        The traing file must be in .csv format with <b>","</b> not <b>";"</b> as seperator
-      </p>
-      <p>Changing of the interval Data while Training is possible</p>
-      <p>With the press of the <b>"w"</b> key you can activate the <b>"8000Watt"</b> image </p>
-    </div>
-    <div id="VideoSetting" class="card">
-      <h2>Video Settings</h2>
-      <hr />
-      <p><b>Resolution</b>
-        <span id="resolutionspan" class="rightalign">
-          
-      </span></p>
-      <input type="range" id="quality-control"/>
-      <p><b>Frames per second</b>
-        <span  id="fpsspan" class="rightalign">
-          
-      </span></p>
-      <input type="range" id="fps-control"/>
-      <p>When Performance is too low, you can lower the video settings</p>
-    </div>
-    <script src="js/app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>

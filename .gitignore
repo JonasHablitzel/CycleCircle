@@ -1,10 +1,5 @@
-js/app.dev.js
-config/data.csv
-.vscode/settings.json
-songoku.gif
-gokuyelling.mp3
-js/dist/app.dev.js
-css/style.css
-test2.csv
-.gitignore
-releases/*
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
