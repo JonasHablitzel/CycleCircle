@@ -698,7 +698,13 @@ document.getElementById("NextTrack").addEventListener("click", nextsong, false);
 document.getElementById("PrevTrack").addEventListener("click", prevsong, false);
 document.getElementById("SongList").addEventListener("change", changesong, false);
 
-function handlesonginput(files) {
+const songInput = document.getElementById("SongInput");
+songInput.addEventListener("change",handlesonginput, false);
+
+function handlesonginput(e) {
+  console.log(songInput)
+  const files = songInput.files
+  
   if (files.length > 0) {
     createPlaylist(files);
     const songlist = document.getElementById("SongList");
