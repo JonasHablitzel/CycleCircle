@@ -1,4 +1,4 @@
-import gymnasiumaudio from "../sounds/gymnasium.wav?url"
+import gymnasiumaudio from "../sounds/gymnasium.wav?url";
 const popuphtml = `<html>
     <head>
         <style>
@@ -66,7 +66,7 @@ const popuphtml = `<html>
             <div class="boxtitle">CADENCE</div>
         </div>        
     </body>
-</html>`
+</html>`;
 
 const WHISTLE = new Audio(gymnasiumaudio);
 
@@ -92,35 +92,44 @@ const EFFORTSBINS = 10;
 
 initspreadsheet();
 
-document.getElementById("DownldTrainLink").addEventListener("click",downloadtable,false);
-document.getElementById("OpenPopupLink").addEventListener("click",openpopup,false);
-document.getElementById("OpenExampleLink").addEventListener("click",settesttraining,false);
-document.getElementById("ResetTraining").addEventListener("click",function(e){
-  if(INTERVALTIMER){
-    INTERVALTIMER.resettime();
-  }
-  e.preventDefault();
-},false);
-
+document
+  .getElementById("DownldTrainLink")
+  .addEventListener("click", downloadtable, false);
+document
+  .getElementById("OpenPopupLink")
+  .addEventListener("click", openpopup, false);
+document
+  .getElementById("OpenExampleLink")
+  .addEventListener("click", settesttraining, false);
+document.getElementById("ResetTraining").addEventListener(
+  "click",
+  function (e) {
+    if (INTERVALTIMER) {
+      INTERVALTIMER.resettime();
+    }
+    e.preventDefault();
+  },
+  false
+);
 
 const HDCONSTRAINTS = {
-    video: {
+  video: {
     width: {
-        min: 176,
-        ideal: 720,
-        max: 1280
+      min: 176,
+      ideal: 720,
+      max: 1280,
     },
     height: {
-        min: 120,
-        ideal: 480,
-        max: 720
+      min: 120,
+      ideal: 480,
+      max: 720,
     },
     frameRate: {
       max: 30,
       ideal: 15,
-      min: 10
+      min: 10,
     },
-    aspectRatio:1.33333,
+    aspectRatio: 1.33333,
   },
   audio: false,
 };
@@ -150,90 +159,112 @@ const RESOLUTIONS = [
     width: 1920,
     height: 1080,
   },
-]
-  
-
-
+];
 
 let MEDIASTREAMTRACK;
 
-navigator.mediaDevices.getUserMedia(HDCONSTRAINTS)
+navigator.mediaDevices
+  .getUserMedia(HDCONSTRAINTS)
   .then(gotMedia)
-  .catch(error => console.error('getUserMedia() error:', error));
+  .catch((error) => console.error("getUserMedia() error:", error));
 
-
-function get_min_max_capabilities(capabilities){
-
+function get_min_max_capabilities(capabilities) {
   const resolutions = [...RESOLUTIONS];
-  const min = resolutions.findIndex(function(element) {
-    return element.height >= capabilities.height.min && element.width >= capabilities.width.min;
+  const min = resolutions.findIndex(function (element) {
+    return (
+      element.height >= capabilities.height.min &&
+      element.width >= capabilities.width.min
+    );
   });
 
-  const max = resolutions.length - 1 - resolutions.reverse().findIndex(function(element) {
-    return element.height <= capabilities.height.max && element.width <= capabilities.width.max;
-  });
-  console.log(min,max,RESOLUTIONS[max])
-  return [min,max]
+  const max =
+    resolutions.length -
+    1 -
+    resolutions.reverse().findIndex(function (element) {
+      return (
+        element.height <= capabilities.height.max &&
+        element.width <= capabilities.width.max
+      );
+    });
+  console.log(min, max, RESOLUTIONS[max]);
+  return [min, max];
 }
 
-function get_closest_idx(goal,array){ 
-  console.log(goal,array);
-  const reduce = array.reduce(function(prev, curr, curidx) {
-    return (Math.abs(curr - goal) < Math.abs(prev.val - goal) ? {val:curr,idx:curidx} : prev);
-  },{val:0,idx:0});
+function get_closest_idx(goal, array) {
+  console.log(goal, array);
+  const reduce = array.reduce(
+    function (prev, curr, curidx) {
+      return Math.abs(curr - goal) < Math.abs(prev.val - goal)
+        ? { val: curr, idx: curidx }
+        : prev;
+    },
+    { val: 0, idx: 0 }
+  );
   return Math.min(reduce.idx);
 }
 
-function get_closest_setting(setting){
-  const widthIdx = get_closest_idx(setting.width,RESOLUTIONS.map(el => el.width))
-  const heightIdx = get_closest_idx(setting.height,RESOLUTIONS.map(el => el.height))
-  return Math.min(widthIdx,heightIdx)
+function get_closest_setting(setting) {
+  const widthIdx = get_closest_idx(
+    setting.width,
+    RESOLUTIONS.map((el) => el.width)
+  );
+  const heightIdx = get_closest_idx(
+    setting.height,
+    RESOLUTIONS.map((el) => el.height)
+  );
+  return Math.min(widthIdx, heightIdx);
 }
 
-
 function gotMedia(stream) {
-  const videoOut = document.getElementById("webcamvideo")
+  const videoOut = document.getElementById("webcamvideo");
   videoOut.srcObject = stream;
   MEDIASTREAMTRACK = stream.getVideoTracks()[0];
-  
+
   const capabilities = MEDIASTREAMTRACK.getCapabilities();
   const settings = MEDIASTREAMTRACK.getSettings();
   console.log(settings);
   if (capabilities.width) {
     const qualitySlider = document.getElementById("quality-control");
-    [qualitySlider.min,qualitySlider.max] = get_min_max_capabilities(capabilities);
+    [qualitySlider.min, qualitySlider.max] =
+      get_min_max_capabilities(capabilities);
     qualitySlider.step = 1;
     qualitySlider.value = get_closest_setting(settings);
-    let event = new Event('change');
+    let event = new Event("change");
     qualitySlider.dispatchEvent(event);
   }
   if (capabilities.frameRate) {
     console.log(capabilities.frameRate.max);
     const fpsslider = document.getElementById("fps-control");
-    fpsslider.min = Math.max(5,capabilities.frameRate.min);
-    fpsslider.max = Math.max(30,capabilities.frameRate.max);
+    fpsslider.min = Math.max(5, capabilities.frameRate.min);
+    fpsslider.max = Math.max(30, capabilities.frameRate.max);
     fpsslider.step = 5;
     fpsslider.value = settings.frameRate;
-    let event = new Event('change');
+    let event = new Event("change");
     fpsslider.dispatchEvent(event);
   }
 }
 
-document.getElementById("quality-control").onchange = function(){  
+document.getElementById("quality-control").onchange = function () {
   const item = RESOLUTIONS[this.value];
-  MEDIASTREAMTRACK.applyConstraints({height: item.height, width: item.width })
-  .catch(error => console.error('Uh, oh, applyConstraints() error:', error));
-  document.getElementById("fps-control").value = MEDIASTREAMTRACK.getSettings().frameRate;
-  document.getElementById("resolutionspan").innerHTML = `${item.width} X ${item.height}`;
-}
+  MEDIASTREAMTRACK.applyConstraints({
+    height: item.height,
+    width: item.width,
+  }).catch((error) =>
+    console.error("Uh, oh, applyConstraints() error:", error)
+  );
+  document.getElementById("fps-control").value =
+    MEDIASTREAMTRACK.getSettings().frameRate;
+  document.getElementById(
+    "resolutionspan"
+  ).innerHTML = `${item.width} X ${item.height}`;
+};
 
-document.getElementById("fps-control").onchange = function(){
-  MEDIASTREAMTRACK.applyConstraints({ frameRate: this.value })
-  .catch(error => console.error('Uh, oh, applyConstraints() error:', error));
+document.getElementById("fps-control").onchange = function () {
+  MEDIASTREAMTRACK.applyConstraints({ frameRate: this.value }).catch((error) =>
+    console.error("Uh, oh, applyConstraints() error:", error)
+  );
   document.getElementById("fpsspan").innerHTML = `${this.value}`;
-}
-
-
+};
 
 function createemty(maxrows = 80) {
   const currentlen = document.getElementById("spreadsheet").jexcel.rows.length;
@@ -246,7 +277,7 @@ function initspreadsheet() {
     data: array,
     defaultColWidth: 220,
     tableOverflow: true,
-    tableHeight:'360px',
+    tableHeight: "360px",
     columns: [
       {
         type: "numeric",
@@ -268,7 +299,7 @@ function initspreadsheet() {
   });
 }
 
-function enableAll(){
+function enableAll() {
   const table = document.getElementById("spreadsheet").jexcel;
   let ncol = table.getHeaders().split(",").length;
   let nrows = table.rows.length;
@@ -281,7 +312,6 @@ function enableAll(){
   }
 }
 
-
 function disableRow(idxrow) {
   const table = document.getElementById("spreadsheet").jexcel;
   let ncol = table.getHeaders().split(",").length;
@@ -292,66 +322,65 @@ function disableRow(idxrow) {
   }
 }
 
-function settableata(array){
+function settableata(array) {
   console.log(array);
-  if (array.length > 0) {      
+  if (array.length > 0) {
     INTERVALTIMER.resettime();
-    document.getElementById("spreadsheet").jexcel.setData(array);      
+    document.getElementById("spreadsheet").jexcel.setData(array);
   }
 }
 
-function settesttraining(){
-  // Example Traing Data from 30\30 
+function settesttraining() {
+  // Example Traing Data from 30\30
   const testtraining = [
-  {duartion: 10, intensity: 3, cadence: 100},
-  {duartion: 7, intensity: 6, cadence: 100},
-  {duartion: 5, intensity: 3, cadence: 90},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90} , 
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 5, intensity: 3, cadence: 90},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 5, intensity: 3, cadence: 90},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 7, intensity: 3, cadence: 90},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 0.5, intensity: 2, cadence: 110},
-  {duartion: 0.5, intensity: 8, cadence: 90},
-  {duartion: 12, intensity: 3, cadence: 110},
+    { duartion: 10, intensity: 3, cadence: 100 },
+    { duartion: 7, intensity: 6, cadence: 100 },
+    { duartion: 5, intensity: 3, cadence: 90 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 5, intensity: 3, cadence: 90 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 5, intensity: 3, cadence: 90 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 7, intensity: 3, cadence: 90 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 0.5, intensity: 2, cadence: 110 },
+    { duartion: 0.5, intensity: 8, cadence: 90 },
+    { duartion: 12, intensity: 3, cadence: 110 },
   ];
   settableata(testtraining);
 }
-
 
 function handleuploadtrain(files) {
   let reader = new FileReader();
@@ -360,10 +389,7 @@ function handleuploadtrain(files) {
     settableata(csvstrtoarray(csv));
   };
   reader.readAsText(files[0]);
-};
-
-
-
+}
 
 function strtolist(lineStr) {
   return lineStr.split(",").map(parseFloat);
@@ -435,8 +461,12 @@ function changerpm(cadence) {
 }
 
 function showclocks(rest_s_ges, rest_s_interval) {
-  document.getElementById("totalcountdown").innerHTML = rest_s_ges.toString().toMMSS();
-  document.getElementById("intervalcountdown").innerHTML = rest_s_interval.toString().toMMSS();
+  document.getElementById("totalcountdown").innerHTML = rest_s_ges
+    .toString()
+    .toMMSS();
+  document.getElementById("intervalcountdown").innerHTML = rest_s_interval
+    .toString()
+    .toMMSS();
 }
 
 function playsound() {
@@ -445,7 +475,7 @@ function playsound() {
 }
 
 function showcountdown(rest_s) {
-  if (rest_s <= 5 && rest_s >= 0)  {
+  if (rest_s <= 5 && rest_s >= 0) {
     document.getElementById("lastseconds").innerHTML = rest_s;
   } else {
     document.getElementById("lastseconds").innerHTML = "";
@@ -464,9 +494,8 @@ function changegauges(intensity, cadence) {
   changerpm(cadence);
 }
 
-
-class Intervaltimer{
-  constructor() {    
+class Intervaltimer {
+  constructor() {
     this.totaltime_s = 0;
     this.intervaltime_s = 0;
     this.totalduration = 0;
@@ -478,98 +507,99 @@ class Intervaltimer{
     this.timer = null;
   }
 
-  updateInterval(){
-    let ls = document.getElementById("spreadsheet").jexcel.getRowData(this.interval_idx);    
+  updateInterval() {
+    let ls = document
+      .getElementById("spreadsheet")
+      .jexcel.getRowData(this.interval_idx);
     this.interval = { duartion: ls[0] * 60, intensity: ls[1], cadence: ls[2] };
     disableRow(this.interval_idx);
     this.intervaltime_s = 0;
   }
-  updateTotal(){
-    this.totalduration = (
+  updateTotal() {
+    this.totalduration =
       document
         .getElementById("spreadsheet")
         .jexcel.getColumnData(0)
         .filter(Boolean)
         .map(parseFloat)
-        .reduce((pv, cv) => pv + cv, 0) * 60
-    );
+        .reduce((pv, cv) => pv + cv, 0) * 60;
   }
 
-  updatetime(){
+  updatetime() {
     this.resttotal_s = this.totalduration - this.totaltime_s;
-    this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
-    if (this.restinterval_s === 0 ) {
-      this.interval_idx = this.interval_idx + 1
+    this.restinterval_s = this.interval.duartion - this.intervaltime_s;
+    if (this.restinterval_s === 0) {
+      this.interval_idx = this.interval_idx + 1;
       this.updateInterval();
-    }else if(isNaN(this.restinterval_s)){
+    } else if (isNaN(this.restinterval_s)) {
       this.updateTotal();
       this.updateInterval();
       this.resttotal_s = this.totalduration - this.totaltime_s;
-      this.restinterval_s = this.interval.duartion - this.intervaltime_s;  
+      this.restinterval_s = this.interval.duartion - this.intervaltime_s;
     }
-    if (this.restinterval_s % 10 === 0){
+    if (this.restinterval_s % 10 === 0) {
       this.updateTotal();
     }
-    if(this.resttotal_s === 0){
+    if (this.resttotal_s === 0) {
       this.resettime();
     }
   }
 
-  draw(){
+  draw() {
     if (this.restinterval_s === 0) {
       this.drawgauges();
     }
     this.drawclocks();
   }
 
-  increasetime(){    
+  increasetime() {
     this.updatetime();
     this.draw();
     this.intervaltime_s = this.intervaltime_s + 1;
-    this.totaltime_s =  this.totaltime_s + 1;   
+    this.totaltime_s = this.totaltime_s + 1;
   }
 
-  drawgauges(){
+  drawgauges() {
     changegauges(this.interval.intensity, this.interval.cadence);
     playsound();
   }
 
-
-  drawclocks(){
+  drawclocks() {
     showclocks(this.resttotal_s, this.restinterval_s);
     showcountdown(this.restinterval_s);
     try {
       sendtopopup();
     } catch (error) {
       console.error(error);
-    }    
+    }
   }
 
-
-  start(){
-    this.updateTotal(); 
-    if(this.totalduration > 0){
+  start() {
+    this.updateTotal();
+    if (this.totalduration > 0) {
       document.getElementById("StartStopTraining").classList.add("paused");
       document.getElementById("informationpopup").style.visibility = "hidden";
-      document.getElementById("informationpopupsvg").style.animationPlayState = "paused";
+      document.getElementById("informationpopupsvg").style.animationPlayState =
+        "paused";
       this.paused = false;
       this.updatetime();
       this.drawclocks();
       this.drawgauges();
-      this.timer = setInterval(() => this.increasetime(),1000);
-    }    
+      this.timer = setInterval(() => this.increasetime(), 1000);
+    }
   }
 
-  stop(){
+  stop() {
     clearInterval(this.timer);
-    changegauges(0,0);
+    changegauges(0, 0);
     document.getElementById("StartStopTraining").classList.remove("paused");
     document.getElementById("informationpopup").style.visibility = "visible";
-    document.getElementById("informationpopupsvg").style.animationPlayState = "running";
+    document.getElementById("informationpopupsvg").style.animationPlayState =
+      "running";
     this.paused = true;
-  } 
+  }
 
-  resettime(){
+  resettime() {
     this.stop();
     enableAll();
     this.totaltime_s = 0;
@@ -585,29 +615,31 @@ class Intervaltimer{
 
 let INTERVALTIMER = new Intervaltimer();
 
-function stoptraining() { 
+function stoptraining() {
   INTERVALTIMER.stop();
 }
 
-
 document.getElementById("StartStopTraining").onclick = (e) => {
   if (INTERVALTIMER.paused) {
-    INTERVALTIMER.start();    
+    INTERVALTIMER.start();
   } else {
-    INTERVALTIMER.stop();    
+    INTERVALTIMER.stop();
   }
 };
 
-
-document.getElementById("UploadTrainLink").addEventListener("click",function(e){
-  const fileElem = document.getElementById("UploadTrain");
-  if(!INTERVALTIMER.paused){
-    alert("not possible while Training is active");
-  }else if(fileElem){
-    fileElem.click();
-  }
-  e.preventDefault();
-},false);
+document.getElementById("UploadTrainLink").addEventListener(
+  "click",
+  function (e) {
+    const fileElem = document.getElementById("UploadTrain");
+    if (!INTERVALTIMER.paused) {
+      alert("not possible while Training is active");
+    } else if (fileElem) {
+      fileElem.click();
+    }
+    e.preventDefault();
+  },
+  false
+);
 
 window.addEventListener(
   "keydown",
@@ -664,11 +696,11 @@ function DeleteAllRows(tableref, fheader = false) {
 }
 
 function downloadtable() {
-  const table = document.getElementById("spreadsheet").jexcel; 
+  const table = document.getElementById("spreadsheet").jexcel;
   const nrows = table.getColumnData(0).filter(Boolean).length;
-  let csvContent = "data:text/csv;charset=utf-8," 
+  let csvContent = "data:text/csv;charset=utf-8,";
   csvContent = csvContent.concat(table.getHeaders());
-  for(let i = 0;i < nrows;i++){
+  for (let i = 0; i < nrows; i++) {
     csvContent = csvContent.concat(`\n${table.getRowData(i)}`);
   }
   var encodedUri = encodeURI(csvContent);
@@ -677,7 +709,7 @@ function downloadtable() {
   link.setAttribute("download", "TrainingData.csv");
   document.body.appendChild(link);
   link.click();
-};
+}
 
 // ---------------
 // Audiocontrols
@@ -685,26 +717,32 @@ function downloadtable() {
 
 const MUSICPLAYER = document.getElementById("MusicPlayer");
 
-document.getElementById("SongInputLink").addEventListener("click",function(e){
-  const fileElem = document.getElementById("SongInput");
-  if(fileElem){
-    fileElem.click();
-  }
-  e.preventDefault();
-},false);
+document.getElementById("SongInputLink").addEventListener(
+  "click",
+  function (e) {
+    const fileElem = document.getElementById("SongInput");
+    if (fileElem) {
+      fileElem.click();
+    }
+    e.preventDefault();
+  },
+  false
+);
 
 MUSICPLAYER.addEventListener("ended", nextsong, false);
 document.getElementById("NextTrack").addEventListener("click", nextsong, false);
 document.getElementById("PrevTrack").addEventListener("click", prevsong, false);
-document.getElementById("SongList").addEventListener("change", changesong, false);
+document
+  .getElementById("SongList")
+  .addEventListener("change", changesong, false);
 
 const songInput = document.getElementById("SongInput");
-songInput.addEventListener("change",handlesonginput, false);
+songInput.addEventListener("change", handlesonginput, false);
 
 function handlesonginput(e) {
-  console.log(songInput)
-  const files = songInput.files
-  
+  console.log(songInput);
+  const files = songInput.files;
+
   if (files.length > 0) {
     createPlaylist(files);
     const songlist = document.getElementById("SongList");
@@ -712,17 +750,17 @@ function handlesonginput(e) {
     MUSICPLAYER.pause();
     songlist.dispatchEvent(new Event("change"));
   }
-};
+}
 
 function createPlaylist(files) {
   const songlist = document.getElementById("SongList");
-  songlist.innerHTML = "";  
+  songlist.innerHTML = "";
   for (let i = 0; i < files.length; i++) {
     // Create the list item:
     let opt = document.createElement("option");
     opt.value = i;
     opt.innerHTML = files[i].name;
-    
+
     songlist.appendChild(opt);
   }
 }
@@ -730,11 +768,11 @@ function createPlaylist(files) {
 function changesong() {
   const songlist = document.getElementById("SongList");
   const songinput = document.getElementById("SongInput");
-  MUSICPLAYER.src = URL.createObjectURL(songinput.files[songlist.selectedIndex]);
+  MUSICPLAYER.src = URL.createObjectURL(
+    songinput.files[songlist.selectedIndex]
+  );
   MUSICPLAYER.play();
 }
-
-
 
 function nextsong() {
   const songlist = document.getElementById("SongList");
@@ -767,19 +805,22 @@ function pad(num, size) {
   return num;
 }
 
-
 String.prototype.toMMSS = function () {
-  var sec_num = parseInt(this, 10); 
+  var sec_num = parseInt(this, 10);
   var minutes = Math.floor(sec_num / 60);
-  var seconds = sec_num - (minutes * 60);
+  var seconds = sec_num - minutes * 60;
 
-  if (minutes < 10) {minutes = "0"+minutes;}
-  if (seconds < 10) {seconds = "0"+seconds;}
-  return minutes+':'+seconds;
-}
+  if (minutes < 10) {
+    minutes = "0" + minutes;
+  }
+  if (seconds < 10) {
+    seconds = "0" + seconds;
+  }
+  return minutes + ":" + seconds;
+};
 
 function formattominsec(time) {
-  const correcttime = time < 0 ? 0 : time 
+  const correcttime = time < 0 ? 0 : time;
   const min = pad(Math.floor(correcttime / 60), 2);
   const sec = pad(Math.floor(correcttime % 60), 2);
   return `${min}:${sec}`;
@@ -809,13 +850,13 @@ document
     this.value = percent / 100;
   });
 
-MUSICPLAYER.addEventListener("timeupdate",updatemusicprogress); 
+MUSICPLAYER.addEventListener("timeupdate", updatemusicprogress);
 
 function updatemusicprogress() {
   const currenttime = this.currentTime;
   const duration = this.duration;
   const percent = (currenttime / duration) * 100;
-  const musictime = document.getElementById("MusicTime");  
+  const musictime = document.getElementById("MusicTime");
   const playprogressbar = document.getElementById("PlayProgressBar");
   const musicduration = document.getElementById("MusicDuration");
   if (isNaN(parseFloat(duration)) || duration === 0) {
@@ -840,13 +881,13 @@ let POPUPWIN = null;
 
 function openpopup() {
   const popupwinpara =
-  "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
+    "resizable=0,status=0,location=0,toolbar=0,menubar=0,width=620,height=160";
   POPUPWIN = window.open("", "PopUpTimer", popupwinpara);
-  POPUPWIN.document.write(popuphtml)
+  POPUPWIN.document.write(popuphtml);
   console.log(POPUPWIN);
 }
 
-function sendtopopup() {  
+function sendtopopup() {
   if (POPUPWIN != null && !POPUPWIN.closed) {
     const Popcurtime = POPUPWIN.document.getElementById("PopTotalcountdown");
     const Popintensity = POPUPWIN.document.getElementById(
@@ -855,13 +896,11 @@ function sendtopopup() {
     const PopIntenstitle = POPUPWIN.document.getElementById("PopIntenstitle");
     const PopCadencetitle = POPUPWIN.document.getElementById("PopCadencetitle");
     Popcurtime.innerHTML = document.getElementById("totalcountdown").innerHTML;
-    Popintensity.innerHTML = document.getElementById(
-      "intervalcountdown"
-    ).innerHTML;
+    Popintensity.innerHTML =
+      document.getElementById("intervalcountdown").innerHTML;
     PopIntenstitle.innerHTML = document.getElementById("intenstitle").innerHTML;
-    PopCadencetitle.innerHTML = document.getElementById(
-      "cadencetitle"
-    ).innerHTML;
+    PopCadencetitle.innerHTML =
+      document.getElementById("cadencetitle").innerHTML;
 
     const element = document.getElementById("intenstitle");
     const style = window.getComputedStyle(element);
@@ -870,36 +909,109 @@ function sendtopopup() {
   }
 }
 
-
 // Spotify
 
 function generateRandomString(length) {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * 
-charactersLength));
- }
- return result;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
+let ACCESS_TOKEN;
+let SPOTIFYPLAYER;
 
-var client_id = 'd3ea418eb4c94e19835b0666dfbb079a';
+function getCurrentQueryParameters(delimiter = "#") {
+  // the access_token is passed back in a URL fragment, not a query string
+  // errors, on the other hand are passed back in a query string
+  const currentLocation = String(window.location).split(delimiter)[1];
+  const params = new URLSearchParams(currentLocation);
+  return params;
+}
 
-//var redirect_uri = 'https://cycle-circle.vercel.app/';
-var redirect_uri = 'http://localhost:3000/'
+function fetchProfileInformation() {
+  const currentQueryParameters = getCurrentQueryParameters("#");
+  ACCESS_TOKEN = currentQueryParameters.get("access_token");
+}
 
-var state = generateRandomString(16);
+function setAuthLink() {
+  const client_id = "d3ea418eb4c94e19835b0666dfbb079a";
 
-// localStorage.setItem(stateKey, state);
-var scope = 'user-read-private user-read-email';
+  //var redirect_uri = 'https://cycle-circle.vercel.app/';
+  const redirect_uri = "http://localhost:3000/";
+  
+  const state = generateRandomString(16);
+  
+  // localStorage.setItem(stateKey, state);
+  const scope = "user-read-private user-read-email";
+  
+  let url = "https://accounts.spotify.com/authorize";
+  url += "?response_type=token";
+  url += "&client_id=" + encodeURIComponent(client_id);
+  url += "&scope=" + encodeURIComponent(scope);
+  url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
+  url += "&state=" + encodeURIComponent(state);
+  console.log(url)
+  document.getElementById("SpotifyAuth").setAttribute("href", url);
+  document.getElementById("SpotifyAuth").textContent = url;
+}
 
-var url = 'https://accounts.spotify.com/authorize';
-url += '?response_type=token';
-url += '&client_id=' + encodeURIComponent(client_id);
-url += '&scope=' + encodeURIComponent(scope);
-url += '&redirect_uri=' + encodeURIComponent(redirect_uri);
-url += '&state=' + encodeURIComponent(state);
+setAuthLink()
 
-window.location.href = url;
+
+window.onSpotifyWebPlaybackSDKReady  = () => {
+  const currentQueryParameters = getCurrentQueryParameters("#");
+  ACCESS_TOKEN = currentQueryParameters.get("access_token");
+  if (ACCESS_TOKEN == null) {
+    return;
+  }
+  SPOTIFYPLAYER = new Spotify.Player({
+    name: "Web Playback SDK Quick Start Player",
+    getOAuthToken: (cb) => {
+      cb(ACCESS_TOKEN);
+    },
+  });
+  SPOTIFYPLAYER.addListener("ready", ({ device_id }) => {
+    console.log("Ready with Device ID", device_id);
+  });
+
+  // Not Ready
+  SPOTIFYPLAYER.addListener("not_ready", ({ device_id }) => {
+    console.log("Device ID has gone offline", device_id);
+  });
+
+  SPOTIFYPLAYER.addListener("initialization_error", ({ message }) => {
+    console.error(message);
+  });
+
+  SPOTIFYPLAYER.addListener("authentication_error", ({ message }) => {
+    console.error(message);
+  });
+
+  SPOTIFYPLAYER.addListener("account_error", ({ message }) => {
+    console.error(message);
+  });
+
+  document.getElementById("ToggleSpotifyPlay").onclick = function () {
+    SPOTIFYPLAYER.togglePlay();
+    SPOTIFYPLAYER.getCurrentState().then(state => {
+      if (!state) {
+        console.error('User is not playing music through the Web Playback SDK');
+        return;
+      }
+      console.log(state)
+      if (state.paused) {
+        document.getElementById("ToggleSpotifyPlay").classList.add("paused");
+      }else{
+        document.getElementById("ToggleSpotifyPlay").classList.remove("paused");
+      }
+    })
+  };
+  SPOTIFYPLAYER.connect();
+};
+
+

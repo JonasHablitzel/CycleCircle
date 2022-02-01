@@ -3,7 +3,8 @@
   <head>
     <link rel="icon" type="image/jpeg" href="img/RVPfeil_Logo_Vektor.svg" />
     <script src="https://bossanova.uk/jexcel/v4/jexcel.js"></script>
-    <script src="https://jsuites.net/v3/jsuites.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="https://jsuites.net/v3/jsuites.js"></script>    
     <link rel="stylesheet" href="/styles/style.css" />
     <link
       rel="stylesheet"
@@ -169,6 +170,14 @@
         </p>
         <input type="range" id="fps-control" />
         <p>When Performance is too low, you can lower the video settings</p>
+        <hr />
+      </div>
+      <div id="InputArea" class="card">
+        <h2>Spotify</h2>
+        <hr />
+        <a id="SpotifyAuth" href=""></a>
+        <button id="PlaySpotify">Click</button>
+        <button id="ToggleSpotifyPlay" class="playpausebutton"></button>
       </div>
     </div>
     <script type="module" src="/js/app.js"></script>
