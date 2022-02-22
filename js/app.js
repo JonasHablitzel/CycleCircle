@@ -379,7 +379,49 @@ function settesttraining() {
     { duartion: 0.5, intensity: 8, cadence: 90 },
     { duartion: 12, intensity: 3, cadence: 110 },
   ];
-  settableata(testtraining);
+
+  const testtraining2 = [
+    { duartion: 10, intensity: 3, cadence: 100 },
+    { duartion: 4, intensity: 6, cadence: 100 },
+    { duartion: 6, intensity: 2, cadence: 80 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 8, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 8, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 1 / 3, intensity: 2, cadence: 100 },
+    { duartion: 2 / 3, intensity: 7, cadence: 80 },
+    { duartion: 12, intensity: 2, cadence: 100 },
+  ];
+  settableata(testtraining2);
 }
 
 function handleuploadtrain(files) {
@@ -941,29 +983,28 @@ function fetchProfileInformation() {
 function setAuthLink() {
   const client_id = "d3ea418eb4c94e19835b0666dfbb079a";
 
-  //var redirect_uri = 'https://cycle-circle.vercel.app/';
-  const redirect_uri = "http://localhost:3000/";
-  
+  const redirect_uri = "https://cycle-circle.vercel.app/";
+  //const redirect_uri = "http://localhost:3000/";
+
   const state = generateRandomString(16);
-  
+
   // localStorage.setItem(stateKey, state);
   const scope = "user-read-private user-read-email";
-  
+
   let url = "https://accounts.spotify.com/authorize";
   url += "?response_type=token";
   url += "&client_id=" + encodeURIComponent(client_id);
   url += "&scope=" + encodeURIComponent(scope);
   url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
   url += "&state=" + encodeURIComponent(state);
-  console.log(url)
+  console.log(url);
   document.getElementById("SpotifyAuth").setAttribute("href", url);
   document.getElementById("SpotifyAuth").textContent = url;
 }
 
-setAuthLink()
+setAuthLink();
 
-
-window.onSpotifyWebPlaybackSDKReady  = () => {
+window.onSpotifyWebPlaybackSDKReady = () => {
   const currentQueryParameters = getCurrentQueryParameters("#");
   ACCESS_TOKEN = currentQueryParameters.get("access_token");
   if (ACCESS_TOKEN == null) {
@@ -998,20 +1039,18 @@ window.onSpotifyWebPlaybackSDKReady  = () => {
 
   document.getElementById("ToggleSpotifyPlay").onclick = function () {
     SPOTIFYPLAYER.togglePlay();
-    SPOTIFYPLAYER.getCurrentState().then(state => {
+    SPOTIFYPLAYER.getCurrentState().then((state) => {
       if (!state) {
-        console.error('User is not playing music through the Web Playback SDK');
+        console.error("User is not playing music through the Web Playback SDK");
         return;
       }
-      console.log(state)
+      console.log(state);
       if (state.paused) {
         document.getElementById("ToggleSpotifyPlay").classList.add("paused");
-      }else{
+      } else {
         document.getElementById("ToggleSpotifyPlay").classList.remove("paused");
       }
-    })
+    });
   };
   SPOTIFYPLAYER.connect();
 };
-
-
